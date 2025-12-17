@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1071420945745",
+    "project_id": "clarity-8efdd",
+    "storage_bucket": "clarity-8efdd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071420945745:android:808f1c7fe4f1a71ffacf70",
+        "android_client_info": {
+          "package_name": "com.example.clarity_mental_health"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1071420945745-0jt5hmj85neg2agn3rhdktl7pluo6oah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.clarity_mental_health",
+            "certificate_hash": "6055f92ba715ba5d78828d2913fbe5accd87169a"
+          }
+        },
+        {
+          "client_id": "1071420945745-6lvdukdn0gcgg3uhj0ajg5k6f2ombbm9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs1n_Z91wS8wPbhw7D_s-OG6fGcLCrVbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071420945745-6lvdukdn0gcgg3uhj0ajg5k6f2ombbm9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

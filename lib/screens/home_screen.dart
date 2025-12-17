@@ -1,272 +1,333 @@
-﻿import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../state/user_state.dart';
+import '../state/notification_state.dart';
+import '../models/notification_settings.dart';
+import '../widgets/notification_status_widget.dart';
+import '../widgets/cards/action_card.dart';
+import '../widgets/cards/wide_feature_card.dart';
+import '../widgets/cards/compact_tool_card.dart';
+import '../widgets/cards/assessment_card.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../utils/responsive_utils.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final userState = ref.watch(userStateProvider);
+    final displayName = userState.profile?.displayName ?? 'Friend';
+
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+      backgroundColor: isDark
+          ? const Color(0xFF0F0F0F)
+          : const Color(0xFFF5F7FA),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Image.asset('assets/logo_v2.png', height: 32, width: 32),
-            const SizedBox(width: 12),
-            const Text('Clarity'),
-          ],
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Insights',
-            onPressed: () => Navigator.of(context).pushNamed('/insights'),
-            icon: const Icon(Icons.insights),
-          ),
-          IconButton(
-            tooltip: 'Mood Tracker',
-            onPressed: () => Navigator.of(context).pushNamed('/mood'),
-            icon: const Icon(Icons.show_chart),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (v) {
-              switch (v) {
-                case 'cbt':
-                  Navigator.of(context).pushNamed('/cbt');
-                  break;
-                case 'profile':
-                  Navigator.of(context).pushNamed('/profile');
-                  break;
-                case 'settings':
-                  Navigator.of(context).pushNamed('/settings');
-                  break;
-                case 'about':
-                  Navigator.of(context).pushNamed('/about');
-                  break;
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'cbt', child: Text('CBT Exercises')),
-              PopupMenuItem(value: 'profile', child: Text('Profile')),
-              PopupMenuItem(value: 'settings', child: Text('Settings')),
-              PopupMenuItem(value: 'about', child: Text('About')),
-            ],
-          ),
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 180,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned.fill(
-                    child: SvgPicture.asset(
-                      'assets/illustrations/header_wave.svg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Welcome to Clarity',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(color: Colors.white),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Track your mental wellness with quick, validated self-checks (PHQ-9, GAD-7) and a reflective journal. Your daily results map into a simple mood tracker to help you notice trends early.',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
+            // Hero Header
+            Container(
+              padding: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
+                      : [const Color(0xFF667eea), const Color(0xFF764ba2)],
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF764ba2).withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _NavCard(
-                  title: 'PHQ-9 Depression Check',
-                  subtitle: '9 questions • ~2 minutes',
-                  icon: Icons.mood,
-                  onTap: () => Navigator.of(context).pushNamed('/phq9'),
-                ),
-                _NavCard(
-                  title: 'GAD-7 Anxiety Check',
-                  subtitle: '7 questions • ~2 minutes',
-                  icon: Icons.psychology,
-                  onTap: () => Navigator.of(context).pushNamed('/gad7'),
-                ),
-                _NavCard(
-                  title: 'Journal',
-                  subtitle: 'Reflect and track mood',
-                  icon: Icons.edit_note,
-                  onTap: () => Navigator.of(context).pushNamed('/journal'),
-                ),
-                _NavCard(
-                  title: 'Insights',
-                  subtitle: 'Averages, trends, and streaks',
-                  icon: Icons.insights,
-                  onTap: () => Navigator.of(context).pushNamed('/insights'),
-                ),
-                _NavCard(
-                  title: 'CBT Micro-exercises',
-                  subtitle: 'Breathing, grounding, reframing',
-                  icon: Icons.self_improvement,
-                  onTap: () => Navigator.of(context).pushNamed('/cbt'),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Disclaimer: This app does not provide medical advice. If you are in crisis, seek immediate help.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavCard extends StatelessWidget {
-  const _NavCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    // Define beautiful gradients for different cards
-    final cardGradients = {
-      'Mood Tracker': [const Color(0xFF667eea), const Color(0xFF764ba2)],
-      'Journal': [const Color(0xFFf093fb), const Color(0xFFf5576c)],
-      'CBT Micro-exercises': [const Color(0xFF4facfe), const Color(0xFF00f2fe)],
-      'Insights': [const Color(0xFF43e97b), const Color(0xFF38f9d7)],
-      'Assessment': [const Color(0xFFfa709a), const Color(0xFFfee140)],
-    };
-
-    final gradient = cardGradients[title] ?? [scheme.primary, scheme.secondary];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            gradient[0].withValues(alpha: 0.1),
-            gradient[1].withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gradient[0].withValues(alpha: 0.2), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: gradient[0].withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: gradient,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: gradient[0].withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Icon(icon, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Good Morning,',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                displayName,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTap: () =>
+                                Navigator.of(context).pushNamed('/profile'),
+                            child: CircleAvatar(
+                              radius: 24,
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.2,
+                              ),
+                              child: Text(
+                                displayName.characters.first.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          height: 1.3,
+                      const SizedBox(height: 24),
+                      // Streak Card
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.local_fire_department_rounded,
+                              color: Colors.orangeAccent,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              '3 Day Streak',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Container(
+                              width: 1,
+                              height: 20,
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                            const SizedBox(width: 16),
+                            const Text(
+                              'Keep it up!',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: gradient[0].withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: gradient[0],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+
+            // Content Body
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Assessments',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Row(
+                      children: [
+                        AssessmentCard(
+                          title: 'Depression\nTest (PHQ-9)',
+                          subtitle: '9 Questions',
+                          color: AppColors.phq9,
+                          icon: Icons.mood_bad_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/phq9'),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        AssessmentCard(
+                          title: 'Anxiety\nTest (GAD-7)',
+                          subtitle: '7 Questions',
+                          color: AppColors.gad7,
+                          icon: Icons.psychology_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/gad7'),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        AssessmentCard(
+                          title: 'Happiness\nScale',
+                          subtitle: 'Subjective',
+                          color: AppColors.happiness,
+                          icon: Icons.sentiment_very_satisfied_rounded,
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/happiness'),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        AssessmentCard(
+                          title: 'Self-Esteem\nCheck',
+                          subtitle: 'Rosenberg',
+                          color: AppColors.selfEsteem,
+                          icon: Icons.person_rounded,
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/self-esteem'),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        AssessmentCard(
+                          title: 'Stress Check\n(PSS-10)',
+                          subtitle: '10 Questions',
+                          color: AppColors.pss10,
+                          icon: Icons.thunderstorm_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/pss10'),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        AssessmentCard(
+                          title: 'Sleep\nQuality',
+                          subtitle: '7 Questions',
+                          color: AppColors.sleep,
+                          icon: Icons.bedtime_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/sleep'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'For You',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Featured Actions Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ActionCard(
+                          title: 'Mood Check',
+                          subtitle: 'How are you?',
+                          icon: Icons.mood_rounded,
+                          color: AppColors.moodTracking,
+                          onTap: () => Navigator.of(context).pushNamed('/mood'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: ActionCard(
+                          title: 'Panic Relief',
+                          subtitle: 'Breathe',
+                          icon: Icons.air_rounded,
+                          color: AppColors.panicRelief,
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/breathing'),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Featured Assessment (Safety Plan or PHQ9)
+                  WideFeatureCard(
+                    title: 'Crisis Safety Plan',
+                    subtitle: 'Be prepared for difficult moments',
+                    icon: Icons.health_and_safety_rounded,
+                    color: AppColors.safetyPlan,
+                    onTap: () =>
+                        Navigator.of(context).pushNamed('/safety-plan'),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Tools',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 2.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    children: [
+                      CompactToolCard(
+                        title: 'Journal',
+                        icon: Icons.edit_note_rounded,
+                        color: AppColors.journaling,
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/journal'),
+                      ),
+                      CompactToolCard(
+                        title: 'Log Activity',
+                        icon: Icons.directions_run_rounded,
+                        color: AppColors.exercise,
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/exercise'),
+                      ),
+                      CompactToolCard(
+                        title: 'Insights',
+                        icon: Icons.insights_rounded,
+                        color: AppColors.insights,
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/insights'),
+                      ),
+                      CompactToolCard(
+                        title: 'CBT',
+                        icon: Icons.psychology_rounded,
+                        color: AppColors.cbt,
+                        onTap: () => Navigator.of(context).pushNamed('/cbt'),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 120),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+// Inline widget classes have been moved to lib/widgets/cards/
+// ActionCard -> lib/widgets/cards/action_card.dart
+// WideFeatureCard -> lib/widgets/cards/wide_feature_card.dart
+// CompactToolCard -> lib/widgets/cards/compact_tool_card.dart
+// AssessmentCard -> lib/widgets/cards/assessment_card.dart

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,13 +14,9 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.crop_square_rounded,
         minutes: 2,
         tags: const ['calming', 'anxiety'],
-        steps: const [
-          'Inhale through the nose for 4 seconds',
-          'Hold gently for 4 seconds',
-          'Exhale through the mouth for 4 seconds',
-          'Hold with lungs empty for 4 seconds',
-          'Repeat 4–6 cycles',
-        ],
+        videoUrl: 'https://example.com/box-breathing-video',
+        description:
+            'Learn the 4-4-4-4 box breathing technique through guided video instruction to reduce anxiety and promote calm.',
         gradient: const [Color(0xFFB3C7FF), Color(0xFF5B8CFF)],
       ),
       _Exercise(
@@ -28,13 +24,9 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.center_focus_strong_rounded,
         minutes: 3,
         tags: const ['grounding', 'panic'],
-        steps: const [
-          'Name 5 things you can see',
-          'Notice 4 things you can feel',
-          'Listen for 3 things you can hear',
-          'Identify 2 things you can smell',
-          'Savor 1 thing you can taste',
-        ],
+        videoUrl: 'https://example.com/grounding-video',
+        description:
+            'Follow along with this grounding exercise video to reconnect with your senses and reduce panic symptoms.',
         gradient: const [Color(0xFFA8E0FF), Color(0xFF6BCBFF)],
       ),
       _Exercise(
@@ -42,11 +34,9 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.psychology_alt_rounded,
         minutes: 4,
         tags: const ['cognition', 'reframing'],
-        steps: const [
-          'Notice the automatic thought',
-          'Name the distortion (e.g., all-or-nothing, mind reading)',
-          'Find a balanced, specific alternative',
-        ],
+        videoUrl: 'https://example.com/thought-reframing-video',
+        description:
+            'Watch this guided session on identifying and reframing negative thought patterns using CBT techniques.',
         gradient: const [Color(0xFFFFCFDF), Color(0xFFB0F3F1)],
       ),
       _Exercise(
@@ -54,11 +44,9 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.self_improvement_rounded,
         minutes: 5,
         tags: const ['tension release', 'sleep'],
-        steps: const [
-          'From toes to head, tense each muscle group for ~5 seconds',
-          'Release for ~10 seconds and notice the contrast',
-          'Move slowly up the body until the face/scalp',
-        ],
+        videoUrl: 'https://example.com/muscle-relaxation-video',
+        description:
+            'Experience deep relaxation with this guided progressive muscle relaxation video session.',
         gradient: const [Color(0xFFC3F8FF), Color(0xFFB9FFDF)],
       ),
       _Exercise(
@@ -66,11 +54,9 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.flag_rounded,
         minutes: 2,
         tags: const ['motivation', 'values'],
-        steps: const [
-          'Pick one value (e.g., kindness, learning, health)',
-          'Define a 2-minute action that expresses it',
-          'Schedule or do it now; notice how it feels',
-        ],
+        videoUrl: 'https://example.com/values-action-video',
+        description:
+            'Discover how to align your daily actions with your core values through this motivational video guide.',
         gradient: const [Color(0xFFFFE7A0), Color(0xFFFFC6A8)],
       ),
       _Exercise(
@@ -78,18 +64,16 @@ class CbtScreen extends StatelessWidget {
         icon: Icons.schedule_rounded,
         minutes: 3,
         tags: const ['anxiety', 'boundaries'],
-        steps: const [
-          'Note the worry and park it on paper',
-          'Set a 10–15 min “worry time” later today',
-          'Return attention to the present task',
-        ],
+        videoUrl: 'https://example.com/worry-time-video',
+        description:
+            'Learn the worry time technique through video instruction to better manage anxiety and set mental boundaries.',
         gradient: const [Color(0xFFDAD4FF), Color(0xFFB8B1FF)],
       ),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CBT Micro-exercises'),
+        title: const Text('CBT Video Sessions'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -120,14 +104,16 @@ class _Exercise {
     required this.icon,
     required this.minutes,
     required this.tags,
-    required this.steps,
+    required this.videoUrl,
+    required this.description,
     required this.gradient,
   });
   final String title;
   final IconData icon;
   final int minutes;
   final List<String> tags;
-  final List<String> steps;
+  final String videoUrl;
+  final String description;
   final List<Color> gradient;
 }
 
@@ -151,8 +137,9 @@ class _ExerciseCardState extends State<_ExerciseCard> {
   Future<void> _loadFavorite() async {
     final prefs = await SharedPreferences.getInstance();
     final favs = prefs.getStringList('cbt_favorites') ?? <String>[];
-    if (mounted)
+    if (mounted) {
       setState(() => _favorite = favs.contains(widget.exercise.title));
+    }
   }
 
   Future<void> _toggleFavorite() async {
@@ -193,7 +180,10 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                       color: Colors.white.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(e.icon, color: scheme.onPrimaryContainer),
+                    child: Icon(
+                      e.icon,
+                      color: Colors.black.withValues(alpha: 0.8),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -203,21 +193,26 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                         Text(
                           e.title,
                           style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             Icon(
-                              Icons.timer_outlined,
+                              Icons.play_circle_outline,
                               size: 14,
-                              color: scheme.onSurfaceVariant,
+                              color: Colors.black.withValues(alpha: 0.7),
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${e.minutes} min',
+                              '${e.minutes} min video',
                               style: Theme.of(context).textTheme.labelMedium
-                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                                  ?.copyWith(
+                                    color: Colors.black.withValues(alpha: 0.7),
+                                  ),
                             ),
                           ],
                         ),
@@ -230,9 +225,14 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                     icon: Icon(
                       _favorite ? Icons.favorite : Icons.favorite_border,
                     ),
-                    color: _favorite ? scheme.primary : scheme.onSurfaceVariant,
+                    color: _favorite
+                        ? Colors.red.shade600
+                        : Colors.black.withValues(alpha: 0.7),
                   ),
-                  Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.black.withValues(alpha: 0.7),
+                  ),
                 ],
               ),
             ),
@@ -274,24 +274,23 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (final s in e.steps)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('• '),
-                                  Expanded(child: Text(s)),
-                                ],
-                              ),
-                            ),
+                          Text(
+                            e.description,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                  height: 1.4,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
                           Row(
                             children: [
                               const Spacer(),
                               FilledButton.icon(
-                                onPressed: () => _openGuide(context, e),
+                                onPressed: () =>
+                                    _launchVideo(context, e.videoUrl),
                                 icon: const Icon(Icons.play_arrow_rounded),
-                                label: const Text('Start'),
+                                label: const Text('Watch Video'),
                               ),
                             ],
                           ),
@@ -312,168 +311,16 @@ class _ExerciseCardState extends State<_ExerciseCard> {
     );
   }
 
-  void _openGuide(BuildContext context, _Exercise e) {
+  Future<void> _launchVideo(BuildContext context, String videoUrl) async {
+    _recordCompletion();
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (context) => _ExerciseGuide(exercise: e),
-    );
-  }
-}
-
-class _ExerciseGuide extends StatefulWidget {
-  const _ExerciseGuide({required this.exercise});
-  final _Exercise exercise;
-  @override
-  State<_ExerciseGuide> createState() => _ExerciseGuideState();
-}
-
-class _ExerciseGuideState extends State<_ExerciseGuide> {
-  int _index = 0;
-  int _seconds = 0;
-  bool _running = false;
-  late final List<String> _steps = widget.exercise.steps;
-  Timer? _timer;
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _startTimer([int seconds = 0]) {
-    _timer?.cancel();
-    setState(() {
-      _seconds = seconds;
-      _running = seconds > 0;
-    });
-    if (seconds <= 0) return;
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (_seconds <= 1) {
-        t.cancel();
-        setState(() {
-          _seconds = 0;
-          _running = false;
-        });
-        HapticFeedback.mediumImpact();
-      } else {
-        setState(() => _seconds -= 1);
-      }
-    });
-  }
-
-  int _inferSeconds(String step) {
-    final match = RegExp(r'(\d{1,2})\s*(sec|second|seconds)?').firstMatch(step);
-    if (match == null) return 0;
-    return int.tryParse(match.group(1)!) ?? 0;
-  }
-
-  void _next() {
-    if (_index < _steps.length - 1) {
-      setState(() => _index += 1);
-      HapticFeedback.selectionClick();
-      final secs = _inferSeconds(_steps[_index]);
-      if (secs > 0) _startTimer(secs);
-    } else {
-      _recordCompletion();
-      SystemSound.play(SystemSoundType.click);
-      Navigator.of(context).maybePop();
-    }
-  }
-
-  void _prev() {
-    if (_index == 0) return;
-    setState(() => _index -= 1);
-    HapticFeedback.selectionClick();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final step = _steps[_index];
-    final secsHint = _inferSeconds(step);
-    final mode = step.toLowerCase().contains('inhale')
-        ? 'inhale'
-        : step.toLowerCase().contains('exhale')
-        ? 'exhale'
-        : step.toLowerCase().contains('hold')
-        ? 'hold'
-        : null;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(widget.exercise.icon, color: scheme.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.exercise.title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Text(
-                '${_index + 1}/${_steps.length}',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(step, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 12),
-          if (mode != null)
-            _BreathingVisual(
-              mode: mode,
-              seconds: _running ? _seconds : (secsHint > 0 ? secsHint : 4),
-            ),
-          if (mode != null) const SizedBox(height: 12),
-          if (_running || _inferSeconds(step) > 0)
-            Row(
-              children: [
-                FilledButton.tonalIcon(
-                  onPressed: _running
-                      ? null
-                      : () => _startTimer(_inferSeconds(step).clamp(1, 60)),
-                  icon: const Icon(Icons.timer),
-                  label: Text(_running ? '$_seconds s' : 'Start timer'),
-                ),
-                const SizedBox(width: 8),
-                if (_running)
-                  OutlinedButton(
-                    onPressed: () => _startTimer(0),
-                    child: const Text('Cancel'),
-                  ),
-              ],
-            ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              OutlinedButton.icon(
-                onPressed: _index == 0 ? null : _prev,
-                icon: const Icon(Icons.chevron_left),
-                label: const Text('Back'),
-              ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: _next,
-                icon: Icon(
-                  _index == _steps.length - 1
-                      ? Icons.check
-                      : Icons.chevron_right,
-                ),
-                label: Text(_index == _steps.length - 1 ? 'Done' : 'Next'),
-              ),
-            ],
-          ),
-        ],
+      builder: (context) => _VideoSessionModal(
+        title: widget.exercise.title,
+        videoUrl: videoUrl,
+        description: widget.exercise.description,
       ),
     );
   }
@@ -510,88 +357,147 @@ Future<void> _recordCompletion() async {
   );
 }
 
-class _BreathingVisual extends StatefulWidget {
-  const _BreathingVisual({required this.mode, required this.seconds});
-  final String mode; // inhale | exhale | hold
-  final int seconds;
-  @override
-  State<_BreathingVisual> createState() => _BreathingVisualState();
-}
+class _VideoSessionModal extends StatelessWidget {
+  const _VideoSessionModal({
+    required this.title,
+    required this.videoUrl,
+    required this.description,
+  });
 
-class _BreathingVisualState extends State<_BreathingVisual>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: widget.seconds > 0 ? widget.seconds : 4),
-    )..repeat(reverse: widget.mode != 'hold');
-  }
-
-  @override
-  void didUpdateWidget(covariant _BreathingVisual oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.seconds != widget.seconds || oldWidget.mode != widget.mode) {
-      _controller.duration = Duration(
-        seconds: widget.seconds > 0 ? widget.seconds : 4,
-      );
-      if (widget.mode == 'hold') {
-        _controller.stop();
-      } else if (!_controller.isAnimating) {
-        _controller.repeat(reverse: true);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final String title;
+  final String videoUrl;
+  final String description;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 120,
-      child: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            final scale = widget.mode == 'hold'
-                ? 1.0
-                : (0.8 + 0.4 * _controller.value);
-            final label =
-                widget.mode[0].toUpperCase() + widget.mode.substring(1);
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Icon(Icons.play_circle_filled, color: scheme.primary, size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Video Player Placeholder
+          Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [scheme.primaryContainer, scheme.secondaryContainer],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Transform.scale(
-                  scale: scale,
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: scheme.primary.withValues(alpha: 0.2),
-                      border: Border.all(color: scheme.primary, width: 2),
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.play_arrow_rounded,
+                    size: 48,
+                    color: scheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Video Session',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onPrimaryContainer,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '$label ${widget.seconds > 0 ? '· ${widget.seconds}s' : ''}',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
+                  'Coming Soon',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: scheme.onPrimaryContainer.withValues(alpha: 0.7),
                   ),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Description
+          Text(
+            'About this session',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            description,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
+
+          const Spacer(),
+
+          // Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.bookmark_border),
+                  label: const Text('Save for Later'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'Video sessions coming soon! Stay tuned.',
+                        ),
+                        backgroundColor: scheme.primary,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Start Session'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

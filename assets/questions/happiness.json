@@ -1,0 +1,12 @@
+[
+  {"id":"happiness_q1","text":"I feel happy and content with my life","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q2","text":"I find joy in everyday activities","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q3","text":"I feel optimistic about my future","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q4","text":"I have meaningful relationships in my life","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q5","text":"I feel satisfied with my accomplishments","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q6","text":"I experience positive emotions regularly","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q7","text":"I feel grateful for what I have","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q8","text":"I feel a sense of purpose in my life","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q9","text":"I feel energized and enthusiastic","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"happiness_q10","text":"I feel at peace with myself","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]}
+]

@@ -1,0 +1,128 @@
+[
+    {
+        "id": "sleep_1",
+        "text": "How would you rate your overall sleep quality in the past week?",
+        "options": [
+            "Very Poor",
+            "Poor",
+            "Fair",
+            "Good",
+            "Very Good"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_2",
+        "text": "How long does it typically take you to fall asleep?",
+        "options": [
+            "> 60 mins",
+            "30-60 mins",
+            "15-30 mins",
+            "10-15 mins",
+            "< 10 mins"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_3",
+        "text": "How often did you wake up during the night or too early in the morning?",
+        "options": [
+            "Every Night",
+            "Most Nights",
+            "Some Nights",
+            "Rarely",
+            "Never"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_4",
+        "text": "How often did you feel tired or sleepy during the day?",
+        "options": [
+            "Daily",
+            "Often",
+            "Sometimes",
+            "Rarely",
+            "Never"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_5",
+        "text": "How many hours of actual sleep did you get per night on average?",
+        "options": [
+            "< 5 hours",
+            "5-6 hours",
+            "6-7 hours",
+            "7-8 hours",
+            "> 8 hours"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_6",
+        "text": "Did you take any medication to help you sleep?",
+        "options": [
+            "Every Night",
+            "Most Nights",
+            "Some Nights",
+            "Rarely",
+            "Never"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "sleep_7",
+        "text": "How refreshed did you feel upon waking up?",
+        "options": [
+            "Not at all",
+            "Slightly",
+            "Somewhat",
+            "Mostly",
+            "Completely"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    }
+]

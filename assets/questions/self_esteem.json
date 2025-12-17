@@ -1,0 +1,12 @@
+[
+  {"id":"self_esteem_q1","text":"I feel that I am a person of worth, at least on an equal plane with others","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q2","text":"I feel that I have a number of good qualities","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q3","text":"All in all, I am inclined to feel that I am a failure","options":["Strongly agree","Agree","Neutral","Disagree","Strongly disagree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q4","text":"I am able to do things as well as most other people","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q5","text":"I feel I do not have much to be proud of","options":["Strongly agree","Agree","Neutral","Disagree","Strongly disagree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q6","text":"I take a positive attitude toward myself","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q7","text":"On the whole, I am satisfied with myself","options":["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q8","text":"I wish I could have more respect for myself","options":["Strongly agree","Agree","Neutral","Disagree","Strongly disagree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q9","text":"I certainly feel useless at times","options":["Strongly agree","Agree","Neutral","Disagree","Strongly disagree"],"weights":[0,1,2,3,4]},
+  {"id":"self_esteem_q10","text":"At times I think I am no good at all","options":["Strongly agree","Agree","Neutral","Disagree","Strongly disagree"],"weights":[0,1,2,3,4]}
+]

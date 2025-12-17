@@ -54,6 +54,13 @@ dependencies:
   path_provider: ^2.1.4
   share_plus: ^10.1.2
   file_picker: ^8.1.6
+  url_launcher: ^6.3.1
+  
+  # Google AI
+  google_generative_ai: ^0.4.6
+  
+  # Logging
+  logger: ^2.0.2+1
 
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.2
@@ -85,6 +92,8 @@ flutter:
     - assets/questions/gad7.json
     - assets/questions/happiness.json
     - assets/questions/self_esteem.json
+    - assets/questions/pss10.json
+    - assets/questions/sleep.json
     - assets/logo.png
     - assets/logo_v2.png
     - assets/illustrations/header_wave.svg

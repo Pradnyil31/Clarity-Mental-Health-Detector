@@ -1,9 +1,12 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/assessment.dart';
 import '../state/mood_state.dart';
+import '../state/assessment_state.dart';
+
+import '../state/user_state.dart';
 
 class AssessmentScreen extends ConsumerStatefulWidget {
   const AssessmentScreen({super.key, required this.kind});
@@ -17,25 +20,22 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     with TickerProviderStateMixin {
   late Future<List<AssessmentQuestion>> _questionsFuture;
   late List<int?> _answers;
-  late AnimationController _progressController;
-  late Animation<double> _progressAnimation;
+  late PageController _pageController;
+  int _currentQuestionIndex = 0;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _questionsFuture = _loadQuestions();
-    _progressController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
-    );
+    _pageController = PageController();
+
+    _isInitialized = true;
   }
 
   @override
   void dispose() {
-    _progressController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -48,10 +48,26 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     return list;
   }
 
-  void _updateProgress() {
-    final answeredCount = _answers.where((answer) => answer != null).length;
-    final progress = answeredCount / _answers.length;
-    _progressController.animateTo(progress);
+  void _nextQuestion() {
+    if (_currentQuestionIndex < _answers.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      _submitAssessment();
+    }
+  }
+
+  void _previousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      Navigator.of(context).maybePop();
+    }
   }
 
   @override
@@ -88,28 +104,38 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                 return _buildLoadingState(scheme);
               }
               final questions = snapshot.data!;
-              return Column(
-                children: [
-                  _buildHeader(scheme, questions.length),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(20),
-                      itemCount: questions.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == questions.length) {
-                          return _buildSubmitButton(scheme, questions.length);
-                        }
-                        return _buildQuestionCard(
-                          context,
-                          scheme,
-                          questions[index],
-                          index,
-                          questions.length,
-                        );
-                      },
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  _previousQuestion();
+                },
+                child: Column(
+                  children: [
+                    _buildHeader(scheme, questions.length),
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentQuestionIndex = index;
+                          });
+                        },
+                        itemCount: questions.length,
+                        itemBuilder: (context, index) {
+                          return _buildQuestionCard(
+                            context,
+                            scheme,
+                            questions[index],
+                            index,
+                            questions.length,
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -143,13 +169,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
           Row(
             children: [
               IconButton(
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).maybePop();
-            } else {
-              Navigator.of(context).pushReplacementNamed('/');
-            }
-          },
+                onPressed: _previousQuestion,
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -194,48 +214,47 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
           ),
           const SizedBox(height: 24),
           // Progress indicator
-          AnimatedBuilder(
-            animation: _progressAnimation,
-            builder: (context, child) {
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          _isInitialized
+                ? Column(
                     children: [
-                      Text(
-                        'Progress',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: scheme.onSurfaceVariant,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Question ${_currentQuestionIndex + 1} of $totalQuestions',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Text(
+                            '${((_currentQuestionIndex + 1) / totalQuestions * 100).toInt()}%',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '${_answers.where((a) => a != null).length}/$totalQuestions',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: scheme.primary,
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: (_currentQuestionIndex + 1) / totalQuestions,
+                          backgroundColor: Colors.white.withValues(
+                            alpha: 0.3,
+                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color(0xFF667eea),
+                          ),
+                          minHeight: 10,
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: _progressAnimation.value,
-                      backgroundColor: Colors.white.withValues(alpha: 0.3),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        const Color(0xFF667eea),
-                      ),
-                      minHeight: 10,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                  )
+                : Container(),
         ],
       ),
     );
@@ -249,6 +268,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     int totalQuestions,
   ) {
     final isAnswered = _answers[index] != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Colorful gradients for each question
     final cardColors = [
@@ -302,6 +322,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     final questionColors = cardColors[index % cardColors.length];
 
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       margin: const EdgeInsets.only(bottom: 20),
       child: Card(
         elevation: isAnswered ? 8 : 2,
@@ -313,6 +334,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
           side: BorderSide(
             color: isAnswered
                 ? questionColors[0].withValues(alpha: 0.6)
+                : isDark
+                ? scheme.outline.withValues(alpha: 0.3)
                 : Colors.white.withValues(alpha: 0.2),
             width: isAnswered ? 3 : 1,
           ),
@@ -328,6 +351,12 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                       questionColors[0].withValues(alpha: 0.9),
                       questionColors[1].withValues(alpha: 0.7),
                       questionColors[2].withValues(alpha: 0.5),
+                    ]
+                  : isDark
+                  ? [
+                      scheme.surface.withValues(alpha: 0.9),
+                      scheme.surface.withValues(alpha: 0.7),
+                      scheme.surfaceContainerHighest.withValues(alpha: 0.5),
                     ]
                   : [
                       Colors.white.withValues(alpha: 0.9),
@@ -353,6 +382,11 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                           end: Alignment.bottomRight,
                           colors: isAnswered
                               ? [questionColors[0], questionColors[1]]
+                              : isDark
+                              ? [
+                                  scheme.surfaceContainerHighest,
+                                  scheme.outline.withValues(alpha: 0.6),
+                                ]
                               : [Colors.grey.shade300, Colors.grey.shade400],
                         ),
                         borderRadius: BorderRadius.circular(20),
@@ -374,6 +408,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                           style: TextStyle(
                             color: isAnswered
                                 ? Colors.white
+                                : isDark
+                                ? scheme.onSurface
                                 : Colors.grey.shade700,
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -413,7 +449,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                           setState(() {
                             _answers[index] = question.weights[optionIndex];
                           });
-                          _updateProgress();
+                          Future.delayed(
+                            const Duration(milliseconds: 150),
+                            _nextQuestion,
+                          );
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
@@ -432,6 +471,19 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                                       questionColors[1],
                                     ],
                                   )
+                                : isDark
+                                ? LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      scheme.surfaceContainerHighest.withValues(
+                                        alpha: 0.8,
+                                      ),
+                                      scheme.surfaceContainerHighest.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ],
+                                  )
                                 : LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -444,6 +496,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                             border: Border.all(
                               color: isSelected
                                   ? questionColors[0].withValues(alpha: 0.8)
+                                  : isDark
+                                  ? scheme.outline.withValues(alpha: 0.4)
                                   : Colors.grey.shade300,
                               width: isSelected ? 2 : 1,
                             ),
@@ -459,7 +513,9 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                                   ]
                                 : [
                                     BoxShadow(
-                                      color: Colors.grey.withValues(alpha: 0.1),
+                                      color: isDark
+                                          ? Colors.black.withValues(alpha: 0.2)
+                                          : Colors.grey.withValues(alpha: 0.1),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -471,6 +527,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
+                                  : isDark
+                                  ? scheme.onSurface
                                   : Colors.grey.shade700,
                               fontWeight: isSelected
                                   ? FontWeight.w600
@@ -491,155 +549,67 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     );
   }
 
-  Widget _buildSubmitButton(ColorScheme scheme, int totalQuestions) {
-    final allAnswered = _answers.every((e) => e != null);
 
-    return Container(
-      margin: const EdgeInsets.only(top: 20, bottom: 40),
-      child: Column(
-        children: [
-          if (!allAnswered) ...[
-            Container(
-            padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: scheme.surfaceVariant.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: scheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: scheme.onSurfaceVariant,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Please answer all $totalQuestions questions to see your results',
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-          Container(
-            width: double.infinity,
-            height: 56,
-            decoration: allAnswered
-                ? BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF667eea),
-                        Color(0xFF764ba2),
-                        Color(0xFFf093fb),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF667eea).withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  )
-                : BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-            child: ElevatedButton(
-              onPressed: allAnswered ? _submitAssessment : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: allAnswered
-                    ? Colors.white
-                    : Colors.grey.shade600,
-                elevation: 0,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    allAnswered ? Icons.analytics_rounded : Icons.lock_rounded,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    allAnswered ? 'View Results' : 'Complete Assessment',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
 
-  void _submitAssessment() {
+  Future<void> _submitAssessment() async {
     final answers = _answers.cast<int>();
     final result = AssessmentScoring.score(widget.kind, answers);
+    final userId = ref.read(currentUserIdProvider);
 
-    // Record mood (use PHQ scale 0..27; map GAD (0..21) to 0..27 via factor 27/21)
-    final raw = result.totalScore;
-    final normalized = widget.kind == AssessmentKind.phq9
-        ? raw
-        : (raw * 27 / 21).round();
+    try {
+      // Save assessment result using the state provider
+      if (userId != null) {
+        await ref
+            .read(assessmentStateProvider.notifier)
+            .addAssessmentResult(result);
+      }
 
-    ref.read(moodTrackerProvider.notifier).recordToday(normalized);
+      // Record mood using the normalized score from the assessment result
+      // This ensures 1:1 synchronization between Assessment Score (0-100) and Mood Tracker
+      await ref.read(moodTrackerProvider.notifier).recordToday(
+        result.normalizedScore,
+        factors: ['Assessment'],
+      );
 
-    showDialog(
-      context: context,
-      builder: (ctx) => _buildResultDialog(ctx, result),
-    );
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => _buildResultDialog(ctx, result),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save assessment: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildResultDialog(BuildContext context, AssessmentResult result) {
     final scheme = Theme.of(context).colorScheme;
-    final severity = result.severity.toLowerCase();
 
     Color severityColor;
     IconData severityIcon;
 
-    switch (severity) {
-      case 'minimal':
-        severityColor = Colors.green;
-        severityIcon = Icons.check_circle_rounded;
-        break;
-      case 'mild':
-        severityColor = Colors.orange;
-        severityIcon = Icons.info_rounded;
-        break;
-      case 'moderate':
-        severityColor = Colors.deepOrange;
-        severityIcon = Icons.warning_rounded;
-        break;
-      case 'moderately severe':
-      case 'severe':
-        severityColor = Colors.red;
-        severityIcon = Icons.error_rounded;
-        break;
-      default:
-        severityColor = scheme.primary;
-        severityIcon = Icons.analytics_rounded;
+    if (result.normalizedScore >= 80) {
+      severityColor = Colors.green;
+      severityIcon = Icons.sentiment_very_satisfied_rounded;
+    } else if (result.normalizedScore >= 60) {
+      severityColor = Colors.lightGreen;
+      severityIcon = Icons.sentiment_satisfied_rounded;
+    } else if (result.normalizedScore >= 40) {
+      severityColor = Colors.amber;
+      severityIcon = Icons.sentiment_neutral_rounded;
+    } else if (result.normalizedScore >= 20) {
+      severityColor = Colors.orange;
+      severityIcon = Icons.sentiment_dissatisfied_rounded;
+    } else {
+      severityColor = Colors.red;
+      severityIcon = Icons.mood_bad_rounded;
     }
 
     return AlertDialog(
@@ -678,10 +648,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
             ),
             const SizedBox(width: 16),
             Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     'Assessment Complete',
                     style: TextStyle(
                       fontSize: 20,
@@ -704,166 +674,183 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
         ),
       ),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 300, maxHeight: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Results Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    severityColor.withValues(alpha: 0.15),
-                    severityColor.withValues(alpha: 0.08),
+        constraints: const BoxConstraints(maxWidth: 350, maxHeight: 500),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Results Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      severityColor.withValues(alpha: 0.15),
+                      severityColor.withValues(alpha: 0.08),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: severityColor.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: severityColor.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: severityColor.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: severityColor.withValues(alpha: 0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Score Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: severityColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Your Score',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${result.totalScore}',
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w800,
-                            color: severityColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Severity Section
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: severityColor.withValues(alpha: 0.3),
-                        width: 1,
+                child: Column(
+                  children: [
+                    // Score Section
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: severityColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
                         children: [
-                        Icon(severityIcon, color: severityColor, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${result.severity}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: severityColor,
+                          Text(
+                            'Wellness Score',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${result.normalizedScore}/100',
+                            style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w800,
+                              color: severityColor,
+                            ),
+                          ),
+                          if (result.totalScore != result.normalizedScore) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Raw Score: ${result.totalScore}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: scheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
+                          ],
                         ],
                       ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Disclaimer Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    scheme.surfaceVariant.withValues(alpha: 0.3),
-                    scheme.surfaceVariant.withValues(alpha: 0.1),
+                    ),
+                    const SizedBox(height: 16),
+                    // Severity Section
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: severityColor.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(severityIcon, color: severityColor, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            result.severity,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: severityColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: scheme.outline.withValues(alpha: 0.2),
-                  width: 1,
+              ),
+              const SizedBox(height: 24),
+
+              // Suggested Activities Section
+              _buildSuggestedActivities(context, result, scheme),
+
+              const SizedBox(height: 20),
+              // Disclaimer Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      scheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      scheme.surfaceContainerHighest.withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: scheme.outline.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.info_outline_rounded,
+                        color: scheme.primary,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Important Notice',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'This is not a medical diagnosis. Please consult a healthcare professional for proper evaluation.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.info_outline_rounded,
-                      color: scheme.primary,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Important Notice',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'This is not a medical diagnosis. Please consult a healthcare professional for proper evaluation.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                            height: 1.4,
-                          ),
-                          softWrap: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
@@ -871,7 +858,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
           width: double.infinity,
           margin: const EdgeInsets.only(top: 8),
           child: ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(); // Close assessment screen
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: scheme.primary,
               foregroundColor: scheme.onPrimary,
@@ -898,4 +888,554 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
       ],
     );
   }
+
+  Widget _buildSuggestedActivities(
+    BuildContext context,
+    AssessmentResult result,
+    ColorScheme scheme,
+  ) {
+    final activities = _getRecommendedActivities(result);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.lightbulb_outline_rounded,
+                color: scheme.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Suggested Activities',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: scheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Based on your results, here are some activities that might help:',
+          style: TextStyle(
+            fontSize: 14,
+            color: scheme.onSurfaceVariant,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...activities.map(
+          (activity) => _buildActivityCard(context, activity, scheme),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActivityCard(
+    BuildContext context,
+    _SuggestedActivity activity,
+    ColorScheme scheme,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            activity.color.withValues(alpha: 0.1),
+            activity.color.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: activity.color.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop(); // Close the dialog first
+            activity.onTap();
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: activity.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(activity.icon, color: activity.color, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activity.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        activity.description,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: scheme.onSurfaceVariant,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: activity.color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: activity.color,
+                    size: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<_SuggestedActivity> _getRecommendedActivities(AssessmentResult result) {
+    final severity = result.severity.toLowerCase();
+    final kind = result.kind;
+
+    List<_SuggestedActivity> activities = [];
+
+    // Base activities for all assessments
+    activities.add(
+      _SuggestedActivity(
+        title: 'Journal Your Thoughts',
+        description: 'Write down your feelings and reflect on your experiences',
+        icon: Icons.edit_note_rounded,
+        color: const Color(0xFF667eea),
+        onTap: () => Navigator.of(context).pushNamed('/journal'),
+      ),
+    );
+
+    // Assessment-specific recommendations
+    switch (kind) {
+      case AssessmentKind.phq9:
+        if (severity == 'minimal' || severity == 'mild') {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Mood Tracking',
+              description: 'Monitor your daily mood patterns and triggers',
+              icon: Icons.show_chart_rounded,
+              color: const Color(0xFF4facfe),
+              onTap: () => Navigator.of(context).pushNamed('/mood'),
+            ),
+            _SuggestedActivity(
+              title: 'CBT Exercises',
+              description: 'Practice cognitive behavioral therapy techniques',
+              icon: Icons.psychology_rounded,
+              color: const Color(0xFFfa709a),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+          ]);
+        } else {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'CBT Exercises',
+              description: 'Learn coping strategies and thought reframing',
+              icon: Icons.psychology_rounded,
+              color: const Color(0xFFfa709a),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+            _SuggestedActivity(
+              title: 'Professional Support',
+              description:
+                  'Consider speaking with a mental health professional',
+              icon: Icons.support_agent_rounded,
+              color: const Color(0xFFFF6B6B),
+              onTap: () => _showProfessionalSupportDialog(context),
+            ),
+          ]);
+        }
+        break;
+
+      case AssessmentKind.gad7:
+        if (severity == 'minimal' || severity == 'mild') {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Breathing Exercises',
+              description:
+                  'Practice relaxation and anxiety management techniques',
+              icon: Icons.air_rounded,
+              color: const Color(0xFF4ECDC4),
+              onTap: () => Navigator.of(context).pushNamed('/breathing'),
+            ),
+            _SuggestedActivity(
+              title: 'Mood Insights',
+              description: 'Track patterns and identify anxiety triggers',
+              icon: Icons.insights_rounded,
+              color: const Color(0xFF43e97b),
+              onTap: () => Navigator.of(context).pushNamed('/insights'),
+            ),
+          ]);
+        } else {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Grounding Techniques',
+              description: 'Learn 5-4-3-2-1 and other calming exercises',
+              icon: Icons.center_focus_strong_rounded,
+              color: const Color(0xFF4ECDC4),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+            _SuggestedActivity(
+              title: 'Professional Support',
+              description: 'Consider anxiety counseling or therapy',
+              icon: Icons.support_agent_rounded,
+              color: const Color(0xFFFF6B6B),
+              onTap: () => _showProfessionalSupportDialog(context),
+            ),
+          ]);
+        }
+        break;
+
+      case AssessmentKind.happiness:
+        if (result.totalScore >= 24) {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Gratitude Practice',
+              description: 'Continue building positive habits and mindfulness',
+              icon: Icons.favorite_rounded,
+              color: const Color(0xFFFECA57),
+              onTap: () => Navigator.of(context).pushNamed('/journal'),
+            ),
+            _SuggestedActivity(
+              title: 'Share Your Joy',
+              description: 'Connect with others and spread positivity',
+              icon: Icons.share_rounded,
+              color: const Color(0xFF96CEB4),
+              onTap: () => Navigator.of(context).pushNamed('/insights'),
+            ),
+          ]);
+        } else {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Positive Activities',
+              description: 'Engage in activities that bring you joy',
+              icon: Icons.sentiment_very_satisfied_rounded,
+              color: const Color(0xFFFECA57),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+            _SuggestedActivity(
+              title: 'Mood Tracking',
+              description: 'Identify what affects your happiness levels',
+              icon: Icons.show_chart_rounded,
+              color: const Color(0xFF4facfe),
+              onTap: () => Navigator.of(context).pushNamed('/mood'),
+            ),
+          ]);
+        }
+        break;
+
+      case AssessmentKind.selfEsteem:
+        if (result.totalScore >= 24) {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Strengths Journal',
+              description: 'Continue celebrating your achievements',
+              icon: Icons.star_rounded,
+              color: const Color(0xFF96CEB4),
+              onTap: () => Navigator.of(context).pushNamed('/journal'),
+            ),
+            _SuggestedActivity(
+              title: 'Goal Setting',
+              description: 'Set new challenges to maintain growth',
+              icon: Icons.flag_rounded,
+              color: const Color(0xFF43e97b),
+              onTap: () => Navigator.of(context).pushNamed('/insights'),
+            ),
+          ]);
+        } else {
+          activities.addAll([
+            _SuggestedActivity(
+              title: 'Self-Compassion',
+              description: 'Practice being kind to yourself',
+              icon: Icons.self_improvement_rounded,
+              color: const Color(0xFF96CEB4),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+            _SuggestedActivity(
+              title: 'Positive Affirmations',
+              description: 'Build confidence through daily affirmations',
+              icon: Icons.psychology_alt_rounded,
+              color: const Color(0xFFfa709a),
+              onTap: () => Navigator.of(context).pushNamed('/journal'),
+            ),
+          ]);
+        }
+        break;
+      case AssessmentKind.pss10:
+        if (result.totalScore >= 14) {
+             activities.addAll([
+            _SuggestedActivity(
+              title: 'Breathing Exercises',
+              description: 'Reduce stress with guided breathing',
+              icon: Icons.air_rounded,
+              color: const Color(0xFF4ECDC4),
+              onTap: () => Navigator.of(context).pushNamed('/breathing'),
+            ),
+             _SuggestedActivity(
+              title: 'CBT for Stress',
+              description: 'Learn to manage stressful thoughts',
+              icon: Icons.psychology_rounded,
+              color: const Color(0xFFfa709a),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+          ]);
+        } else {
+             activities.addAll([
+            _SuggestedActivity(
+              title: 'Activity Log',
+              description: 'Keep track of what helps you stay calm',
+              icon: Icons.directions_run_rounded,
+              color: const Color(0xFFFD79A8),
+              onTap: () => Navigator.of(context).pushNamed('/exercise'),
+            ),
+            _SuggestedActivity(
+              title: 'Journaling',
+              description: 'Reflect on your day',
+              icon: Icons.edit_note_rounded,
+              color: const Color(0xFF667eea),
+              onTap: () => Navigator.of(context).pushNamed('/journal'),
+            ),
+          ]);
+        }
+        break;
+
+      case AssessmentKind.sleep:
+         if (result.totalScore <= 14) {
+             activities.addAll([
+            _SuggestedActivity(
+              title: 'Relaxation',
+              description: 'Try 4-7-8 breathing before bed',
+              icon: Icons.bedtime_rounded,
+              color: const Color(0xFF5F27CD),
+              onTap: () => Navigator.of(context).pushNamed('/breathing'),
+            ),
+            _SuggestedActivity(
+              title: 'Sleep Hygiene',
+              description: 'Review healthy sleep habits',
+              icon: Icons.lightbulb_outline_rounded,
+              color: const Color(0xFFFECA57),
+              onTap: () => Navigator.of(context).pushNamed('/cbt'),
+            ),
+          ]);
+        } else {
+             activities.addAll([
+            _SuggestedActivity(
+              title: 'Morning Check-in',
+              description: 'Start your day with a mood check',
+              icon: Icons.wb_sunny_rounded,
+              color: const Color(0xFFFF9F43),
+              onTap: () => Navigator.of(context).pushNamed('/mood'),
+            ),
+             _SuggestedActivity(
+              title: 'Activity',
+              description: 'Regular exercise improves sleep',
+              icon: Icons.directions_run_rounded,
+              color: const Color(0xFFFD79A8),
+              onTap: () => Navigator.of(context).pushNamed('/exercise'),
+            ),
+          ]);
+        }
+        break;
+    }
+
+    return activities.take(3).toList(); // Limit to 3 suggestions
+  }
+
+  void _showProfessionalSupportDialog(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.support_agent_rounded,
+                color: scheme.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('Professional Support'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Consider reaching out to:',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildSupportOption(
+              context,
+              'Mental Health Professional',
+              'Therapist, counselor, or psychologist',
+              Icons.psychology_rounded,
+              scheme.primary,
+            ),
+            const SizedBox(height: 12),
+            _buildSupportOption(
+              context,
+              'Your Doctor',
+              'Primary care physician or psychiatrist',
+              Icons.medical_services_rounded,
+              Colors.blue,
+            ),
+            const SizedBox(height: 12),
+            _buildSupportOption(
+              context,
+              'Crisis Hotline',
+              'If you\'re in immediate distress',
+              Icons.phone_rounded,
+              Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: scheme.errorContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: scheme.error.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.emergency_rounded, color: scheme.error, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'If you\'re having thoughts of self-harm, please seek immediate help.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.error,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportOption(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SuggestedActivity {
+  final String title;
+  final String description;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  _SuggestedActivity({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
 }

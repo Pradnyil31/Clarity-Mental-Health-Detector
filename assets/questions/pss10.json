@@ -1,0 +1,182 @@
+[
+    {
+        "id": "pss10_1",
+        "text": "In the last month, how often have you been upset because of something that happened unexpectedly?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "pss10_2",
+        "text": "In the last month, how often have you felt that you were unable to control the important things in your life?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "pss10_3",
+        "text": "In the last month, how often have you felt nervous and stressed?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "pss10_4",
+        "text": "In the last month, how often have you felt confident about your ability to handle your personal problems?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            4,
+            3,
+            2,
+            1,
+            0
+        ]
+    },
+    {
+        "id": "pss10_5",
+        "text": "In the last month, how often have you felt that things were going your way?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            4,
+            3,
+            2,
+            1,
+            0
+        ]
+    },
+    {
+        "id": "pss10_6",
+        "text": "In the last month, how often have you found that you could not cope with all the things that you had to do?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "pss10_7",
+        "text": "In the last month, how often have you been able to control irritations in your life?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            4,
+            3,
+            2,
+            1,
+            0
+        ]
+    },
+    {
+        "id": "pss10_8",
+        "text": "In the last month, how often have you felt that you were on top of things?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            4,
+            3,
+            2,
+            1,
+            0
+        ]
+    },
+    {
+        "id": "pss10_9",
+        "text": "In the last month, how often have you been angered because of things that were outside of your control?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    },
+    {
+        "id": "pss10_10",
+        "text": "In the last month, how often have you felt difficulties were piling up so high that you could not overcome them?",
+        "options": [
+            "Never",
+            "Almost Never",
+            "Sometimes",
+            "Fairly Often",
+            "Very Often"
+        ],
+        "weights": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    }
+]
