@@ -48,7 +48,11 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     return list;
   }
 
+  bool _isSubmitting = false;
+
   void _nextQuestion() {
+    if (_isSubmitting) return;
+    
     if (_currentQuestionIndex < _answers.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -60,6 +64,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
   }
 
   void _previousQuestion() {
+    if (_isSubmitting) return;
+
     if (_currentQuestionIndex > 0) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
@@ -105,9 +111,11 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
               }
               final questions = snapshot.data!;
               return PopScope(
-                canPop: false,
+                // Allow popping only if we are on the first question
+                canPop: _currentQuestionIndex == 0,
                 onPopInvokedWithResult: (didPop, result) {
-                  if (didPop) return;
+                  if (didPop || _isSubmitting) return;
+                  // If we didn't pop (meaning index > 0), go to previous question
                   _previousQuestion();
                 },
                 child: Column(
@@ -541,6 +549,38 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
                     );
                   }).toList(),
                 ),
+                if (index > 0) ...[
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _previousQuestion,
+                      icon: Icon(
+                        Icons.arrow_back_rounded,
+                        size: 18,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      label: Text(
+                        'Previous Question',
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        backgroundColor: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.05),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -549,15 +589,29 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
     );
   }
 
-
-
   Future<void> _submitAssessment() async {
+    if (_isSubmitting) return;
+    
+    // Set submitting flag immediately to prevent multiple calls
+    _isSubmitting = true;
+
     final answers = _answers.cast<int>();
     final result = AssessmentScoring.score(widget.kind, answers);
     final userId = ref.read(currentUserIdProvider);
 
+    // Show dialog immediately for smooth UX
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => _buildResultDialog(ctx, result),
+      ).then((_) {
+        // Reset submitting flag when dialog is closed (if we want to allow re-submission or navigation)
+        // Note: Usually we navigate away after this dialog, so it might not matter
+      });
+    }
+
+    // Perform database operations in background
     try {
-      // Save assessment result using the state provider
       if (userId != null) {
         await ref
             .read(assessmentStateProvider.notifier)
@@ -565,27 +619,17 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen>
       }
 
       // Record mood using the normalized score from the assessment result
-      // This ensures 1:1 synchronization between Assessment Score (0-100) and Mood Tracker
       await ref.read(moodTrackerProvider.notifier).recordToday(
         result.normalizedScore,
         factors: ['Assessment'],
       );
-
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (ctx) => _buildResultDialog(ctx, result),
-        );
-      }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save assessment: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      // If saving fails, we might want to notify user or retry silenty
+      // key thing is not to block the UI transition
+      debugPrint('Error saving assessment result: $e');
+    } finally {
+       // Optional: reset if you want to allow retry on error without closing dialog?
+       // _isSubmitting = false; 
     }
   }
 
