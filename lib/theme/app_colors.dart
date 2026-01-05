@@ -38,6 +38,7 @@ class AppColors {
   static const exercise = Color(0xFFFD79A8);
   static const insights = Color(0xFF636E72);
   static const cbt = Color(0xFF2D3436);
+  static const todo = Color(0xFF00CEC9);
   
   // Assessment colors
   static const phq9 = Color(0xFFFF6B6B);           // Depression - Red

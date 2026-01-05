@@ -6,8 +6,10 @@ import '../repositories/journal_repository.dart';
 import '../repositories/mood_repository.dart';
 import '../repositories/assessment_repository.dart';
 import '../repositories/user_repository.dart';
+import '../repositories/todo_repository.dart';
 import '../models/user_profile.dart';
 import '../models/assessment.dart';
+import '../models/todo_item.dart';
 import '../state/app_state.dart';
 import '../state/mood_state.dart';
 
@@ -164,6 +166,51 @@ class DataPersistenceService {
     }
   }
 
+  // Save todo item with retry logic
+  static Future<void> saveTodoItem(String userId, TodoItem item) async {
+    final operation = PendingOperation(
+      type: OperationType.saveTodo,
+      userId: userId,
+      data: item,
+      timestamp: DateTime.now(),
+    );
+
+    // Always try to save immediately first
+    try {
+      await TodoRepository.addTodo(userId, item);
+      return;
+    } catch (e) {
+      // Only queue if it fails
+      _pendingOperations.add(operation);
+      // Optional: rethrow if we want UI to know, but standard pattern here suppresses it if queued?
+      // The original code rethrew if isOnline was true.
+      // We will rethrow if we suspect it's a permanent error, but for connectivity we queue.
+      // For consistency with original: if we think we are online and it fails, we assume error.
+      // But since we are bypassing _isOnline check, we should probably just queue.
+      // However, to debug, let's log or rethrow if it's NOT a network error?
+      // For safety: Queue it, and if it was a logic error it will fail in retry loop too.
+      print('Save failed, adding to queue: $e'); 
+    }
+  }
+
+  // Delete todo item with retry logic
+  static Future<void> deleteTodoItem(String userId, String todoId) async {
+    final operation = PendingOperation(
+      type: OperationType.deleteTodo,
+      userId: userId,
+      data: todoId,
+      timestamp: DateTime.now(),
+    );
+
+    try {
+      await TodoRepository.deleteTodo(userId, todoId);
+      return;
+    } catch (e) {
+      _pendingOperations.add(operation);
+      print('Delete failed, adding to queue: $e');
+    }
+  }
+
   // Process pending operations when back online
   static Future<void> _processPendingOperations() async {
     if (_pendingOperations.isEmpty || !_isOnline) return;
@@ -213,6 +260,18 @@ class DataPersistenceService {
         break;
       case OperationType.updateProfile:
         await UserRepository.createOrUpdateUser(operation.data as UserProfile);
+        break;
+      case OperationType.saveTodo:
+        await TodoRepository.addTodo(
+          operation.userId, 
+          operation.data as TodoItem
+        );
+        break;
+      case OperationType.deleteTodo:
+        await TodoRepository.deleteTodo(
+          operation.userId, 
+          operation.data as String
+        );
         break;
     }
   }
@@ -268,7 +327,15 @@ class DataPersistenceService {
 }
 
 // Enum for operation types
-enum OperationType { saveJournal, saveMood, deleteMood, saveAssessment, updateProfile }
+enum OperationType { 
+  saveJournal, 
+  saveMood, 
+  deleteMood, 
+  saveAssessment, 
+  updateProfile,
+  saveTodo,
+  deleteTodo
+}
 
 // Class to represent a pending operation
 class PendingOperation {

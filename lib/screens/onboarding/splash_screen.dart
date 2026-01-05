@@ -33,9 +33,9 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigate after 2 seconds
-    Timer(const Duration(seconds: 2), () {
+      Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/onboarding-carousel');
+        Navigator.of(context).pushReplacementNamed('/welcome');
       }
     });
   }

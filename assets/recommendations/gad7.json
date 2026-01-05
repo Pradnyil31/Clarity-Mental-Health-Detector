@@ -1,0 +1,76 @@
+{
+    "recommendations": {
+        "Minimal": {
+            "title": "Low Anxiety Levels",
+            "description": "You are experiencing minimal anxiety. Keep up your current healthy habits.",
+            "tips": [
+                {
+                    "title": "Mindfulness",
+                    "description": "Regular mindfulness practice helps keep anxiety at bay."
+                },
+                {
+                    "title": "Healthy Boundaries",
+                    "description": "Continue maintaining a good work-life balance."
+                },
+                {
+                    "title": "Physical Health",
+                    "description": "Regular exercise is a natural anxiety reducer."
+                }
+            ]
+        },
+        "Mild": {
+            "title": "Mild Anxiety",
+            "description": "You have some anxiety symptoms. Early management strategies can be very effective here.",
+            "tips": [
+                {
+                    "title": "Breathing Exercises",
+                    "description": "Try 'Box Breathing' (inhale 4s, hold 4s, exhale 4s, hold 4s) when creating tension."
+                },
+                {
+                    "title": "Limit Caffeine",
+                    "description": "Reducing caffeine intake can decrease physical jitters and anxiety."
+                },
+                {
+                    "title": "Worry Time",
+                    "description": "Set aside 15 mins a day specifically for worrying, then postpone worries until that time."
+                }
+            ]
+        },
+        "Moderate": {
+            "title": "Moderate Anxiety",
+            "description": "Anxiety is likely interfering with your days. Structured coping strategies are recommended.",
+            "tips": [
+                {
+                    "title": "Grounding Techniques",
+                    "description": "Use the 5-4-3-2-1 technique: name 5 things you see, 4 feel, 3 hear, 2 smell, 1 taste."
+                },
+                {
+                    "title": "Muscle Relaxation",
+                    "description": "Practice Progressive Muscle Relaxation to release built-up physical tension."
+                },
+                {
+                    "title": "Challenge Thoughts",
+                    "description": "Ask yourself: 'Is this worry a fact or an opinion? What is the evidence?'"
+                }
+            ]
+        },
+        "Severe": {
+            "title": "Severe Anxiety",
+            "description": "Your anxiety levels are high and likely overwhelming. Professional support is strongly advised.",
+            "tips": [
+                {
+                    "title": "Professional Support",
+                    "description": "A therapist can assist with CBT techniques specifically effective for severe anxiety."
+                },
+                {
+                    "title": "Medical Consultation",
+                    "description": "Talk to a doctor about your symptoms; there are many effective treatments."
+                },
+                {
+                    "title": "Support System",
+                    "description": "Let trusted family or friends know how you are feeling so they can support you."
+                }
+            ]
+        }
+    }
+}

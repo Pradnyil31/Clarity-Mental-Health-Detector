@@ -64,6 +64,7 @@ dependencies:
 
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.2
+  youtube_player_flutter: ^9.1.3
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +95,12 @@ flutter:
     - assets/questions/self_esteem.json
     - assets/questions/pss10.json
     - assets/questions/sleep.json
+    - assets/recommendations/sleep.json
+    - assets/recommendations/phq9.json
+    - assets/recommendations/gad7.json
+    - assets/recommendations/happiness.json
+    - assets/recommendations/self_esteem.json
+    - assets/recommendations/pss10.json
     - assets/logo.png
     - assets/logo_v2.png
     - assets/illustrations/header_wave.svg

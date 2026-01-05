@@ -1,0 +1,72 @@
+{
+    "recommendations": {
+        "Poor": {
+            "title": "Immediate Sleep Hygiene Review Needed",
+            "description": "Your responses indicate significant difficulties with sleep. This can affect your mood, energy, and overall health. It is highly recommended to prioritize sleep hygiene immediately.",
+            "tips": [
+                {
+                    "title": "Establish a Routine",
+                    "description": "Go to bed and wake up at the same time every day, even on weekends."
+                },
+                {
+                    "title": "Consult a Professional",
+                    "description": "Since you are experiencing significant sleep issues, consider speaking with a healthcare provider to rule out sleep disorders."
+                },
+                {
+                    "title": "Limit Screen Time",
+                    "description": "Avoid screens (phones, tablets, computers) for at least one hour before bed. The blue light interferes with melatonin production."
+                },
+                {
+                    "title": "Create a Sleep Sanctuary",
+                    "description": "Ensure your bedroom is dark, quiet, and cool. Consider using earplugs or an eye mask if needed."
+                }
+            ]
+        },
+        "Fair": {
+            "title": "Room for Improvement",
+            "description": "You are getting some rest, but there are clear signs that your sleep quality or quantity could be better.",
+            "tips": [
+                {
+                    "title": "Consistency is Key",
+                    "description": "Try to stick to a consistent sleep schedule to help regulate your body's internal clock."
+                },
+                {
+                    "title": "Watch Your Caffeine",
+                    "description": "Avoid caffeine in the afternoon and evening. Its effects can last for several hours."
+                },
+                {
+                    "title": "Relaxation Techniques",
+                    "description": "Try deep breathing or progressive muscle relaxation before bed to calm your mind."
+                }
+            ]
+        },
+        "Good": {
+            "title": "Great Sleep Habits",
+            "description": "You seem to be sleeping well! Maintaining these good habits is important for long-term health.",
+            "tips": [
+                {
+                    "title": "Maintain Your Routine",
+                    "description": "Keep doing what you are doing! Consistency is the most important factor."
+                },
+                {
+                    "title": "Exercise Regularly",
+                    "description": "Regular physical activity can help you fall asleep faster and enjoy deeper sleep."
+                }
+            ]
+        },
+        "Excellent": {
+            "title": "Sleep Master",
+            "description": "Your sleep hygiene is exemplary. You are likely reaping the benefits of good rest in your daily life.",
+            "tips": [
+                {
+                    "title": "Spread the Word",
+                    "description": "Your habits are working well. Consider helping friends or family who might struggle with sleep."
+                },
+                {
+                    "title": "Listen to Your Body",
+                    "description": "Even with great habits, if you ever feel tired, don't hesitate to take a short power nap (20 mins)."
+                }
+            ]
+        }
+    }
+}

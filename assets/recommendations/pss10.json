@@ -1,0 +1,58 @@
+{
+    "recommendations": {
+        "Low Stress": {
+            "title": "Relaxed State",
+            "description": "You are managing stress well. Continue your current practices to maintain this balance.",
+            "tips": [
+                {
+                    "title": "Maintenance",
+                    "description": "Keep up with your hobbies and relaxation routines."
+                },
+                {
+                    "title": "Preparation",
+                    "description": "Build up resilience now for future busy periods."
+                },
+                {
+                    "title": "Enjoyment",
+                    "description": "Take time to fully enjoy this period of calm."
+                }
+            ]
+        },
+        "Moderate Stress": {
+            "title": "Manageable Stress",
+            "description": "You are feeling some stress. It's time to use some tools to keep it in check.",
+            "tips": [
+                {
+                    "title": "Prioritize",
+                    "description": "Make a to-do list and focus only on the top 3 most important items."
+                },
+                {
+                    "title": "Time Management",
+                    "description": "Use the Pomodoro technique (25min work, 5min break) to focus without burnout."
+                },
+                {
+                    "title": "Deep Breathing",
+                    "description": "Practice deep belly breathing for 2 minutes when you feel tension rising."
+                }
+            ]
+        },
+        "High Stress": {
+            "title": "High Stress Load",
+            "description": "Your stress levels are high. It is crucial to prioritize stress reduction right now.",
+            "tips": [
+                {
+                    "title": "Stress Fast",
+                    "description": "Cut out visible stressors immediately if possible (e.g., news, social media)."
+                },
+                {
+                    "title": "Say No",
+                    "description": "Decline any new responsibilities until you feel more balanced."
+                },
+                {
+                    "title": "Active Relaxation",
+                    "description": "Engage in progressive muscle relaxation or a long bath to physically soothe your body."
+                }
+            ]
+        }
+    }
+}

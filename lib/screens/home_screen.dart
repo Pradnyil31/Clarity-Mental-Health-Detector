@@ -91,13 +91,19 @@ class HomeScreen extends ConsumerWidget {
                               backgroundColor: Colors.white.withValues(
                                 alpha: 0.2,
                               ),
-                              child: Text(
-                                displayName.characters.first.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              child: userState.profile?.avatarId != null &&
+                                     userState.profile!.avatarId!.isNotEmpty
+                                  ? Text(
+                                      userState.profile!.avatarId!,
+                                      style: const TextStyle(fontSize: 24),
+                                    )
+                                  : Text(
+                                      displayName.characters.first.toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
@@ -311,6 +317,12 @@ class HomeScreen extends ConsumerWidget {
                         icon: Icons.psychology_rounded,
                         color: AppColors.cbt,
                         onTap: () => Navigator.of(context).pushNamed('/cbt'),
+                      ),
+                      CompactToolCard(
+                        title: 'To-Do List',
+                        icon: Icons.check_circle_rounded,
+                        color: AppColors.todo,
+                        onTap: () => Navigator.of(context).pushNamed('/todo'),
                       ),
                     ],
                   ),

@@ -1,0 +1,94 @@
+{
+    "recommendations": {
+        "Very Low": {
+            "title": "Rebuilding Self-Worth",
+            "description": "Your self-esteem is currently very low. Remember, your worth is inherent and not based on achievement.",
+            "tips": [
+                {
+                    "title": "Stop Comparison",
+                    "description": "Take a break from social media if it triggers comparisons."
+                },
+                {
+                    "title": "Self-Forgiveness",
+                    "description": "Forgive yourself for past mistakes. They are opportunities to learn, not definitions of you."
+                },
+                {
+                    "title": "Affirmations",
+                    "description": "Start your day with a simple positive statement about yourself."
+                }
+            ]
+        },
+        "Low": {
+            "title": "Nurturing Confidence",
+            "description": "You may be doubting yourself often. Let's work on being your own cheerleader.",
+            "tips": [
+                {
+                    "title": "List Strengths",
+                    "description": "Write down 5 things you are good at or like about yourself."
+                },
+                {
+                    "title": "Accept Compliments",
+                    "description": "When someone compliments you, simply say 'Thank you' instead of deflecting."
+                },
+                {
+                    "title": "Small Wins",
+                    "description": "Set very small goals and celebrate achieving them."
+                }
+            ]
+        },
+        "Moderate": {
+            "title": "Stable Self-View",
+            "description": "Your self-esteem is moderate. You have a realistic view but could be kinder to yourself.",
+            "tips": [
+                {
+                    "title": "Positive Self-Talk",
+                    "description": "Notice when you are critical of yourself and try to rephrase it kindly."
+                },
+                {
+                    "title": "Boundaries",
+                    "description": "Practice saying 'no' to things that drain you to respect your own needs."
+                },
+                {
+                    "title": "Self-Care",
+                    "description": "Dedicate time each week purely for doing things you enjoy."
+                }
+            ]
+        },
+        "Moderate-High": {
+            "title": "Healthy Confidence",
+            "description": "You have a solid sense of self-worth. Keep nurturing this healthy perspective.",
+            "tips": [
+                {
+                    "title": "Challenge Yourself",
+                    "description": "Step slightly outside your comfort zone to prove your resilience."
+                },
+                {
+                    "title": "Help Others",
+                    "description": "Use your confidence to support others who might be struggling."
+                },
+                {
+                    "title": "Reflect",
+                    "description": "Journal about your personal values and how you are living them."
+                }
+            ]
+        },
+        "High": {
+            "title": "Strong Self-Esteem",
+            "description": "You have a very healthy relationship with yourself. This is a powerful foundation.",
+            "tips": [
+                {
+                    "title": "Leadership",
+                    "description": "Your confidence can inspire others; consider taking lead in a group."
+                },
+                {
+                    "title": "Resilience",
+                    "description": "Use your self-belief to tackle long-term difficult goals."
+                },
+                {
+                    "title": "Continuous Growth",
+                    "description": "Focus on growth and learning rather than proving yourself."
+                }
+            ]
+        }
+    }
+}

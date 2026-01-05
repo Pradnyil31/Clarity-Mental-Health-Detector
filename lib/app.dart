@@ -27,6 +27,7 @@ import 'screens/onboarding/personalization_screen.dart';
 import 'screens/onboarding/assessment_suggestion_screen.dart';
 import 'screens/onboarding/first_breathing_screen.dart';
 import 'screens/onboarding/onboarding_completion_screen.dart';
+import 'screens/todo_list_screen.dart';
 
 import 'models/assessment.dart';
 import 'services/auth_service.dart';
@@ -240,29 +241,57 @@ class ClarityApp extends ConsumerWidget {
           return MaterialPageRoute(builder: (_) => const EnhancedChatScreen());
         }
         if (settings.name == '/phq9') {
+          final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (_) => const AssessmentScreen(kind: AssessmentKind.phq9),
+            builder: (_) => AssessmentScreen(
+              kind: AssessmentKind.phq9,
+              returnResult: args?['returnResult'] ?? false,
+            ),
           );
         }
         if (settings.name == '/gad7') {
+          final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (_) => const AssessmentScreen(kind: AssessmentKind.gad7),
+            builder: (_) => AssessmentScreen(
+              kind: AssessmentKind.gad7,
+              returnResult: args?['returnResult'] ?? false,
+            ),
           );
         }
         if (settings.name == '/happiness') {
-          return MaterialPageRoute(builder: (_) => const HappinessScreen());
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (_) => AssessmentScreen(
+                kind: AssessmentKind.happiness,
+                returnResult: args?['returnResult'] ?? false
+            ),
+          );
         }
         if (settings.name == '/self-esteem') {
-          return MaterialPageRoute(builder: (_) => const SelfEsteemScreen());
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (_) => AssessmentScreen(
+                kind: AssessmentKind.selfEsteem,
+                returnResult: args?['returnResult'] ?? false
+            ),
+          );
         }
         if (settings.name == '/pss10') {
+          final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (_) => const AssessmentScreen(kind: AssessmentKind.pss10),
+            builder: (_) => AssessmentScreen(
+              kind: AssessmentKind.pss10,
+              returnResult: args?['returnResult'] ?? false,
+            ),
           );
         }
         if (settings.name == '/sleep') {
+          final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (_) => const AssessmentScreen(kind: AssessmentKind.sleep),
+            builder: (_) => AssessmentScreen(
+              kind: AssessmentKind.sleep,
+              returnResult: args?['returnResult'] ?? false,
+            ),
           );
         }
         if (settings.name == '/journal') {
@@ -337,6 +366,12 @@ class ClarityApp extends ConsumerWidget {
         }
         if (settings.name == '/onboarding-complete') {
           return MaterialPageRoute(builder: (_) => const OnboardingCompletionScreen());
+        }
+        if (settings.name == '/todo') {
+          return MaterialPageRoute(builder: (_) => const TodoListScreen());
+        }
+        if (settings.name == '/welcome') {
+          return MaterialPageRoute(builder: (_) => const WelcomeScreen());
         }
         return null;
       },

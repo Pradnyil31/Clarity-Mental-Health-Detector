@@ -1,0 +1,94 @@
+{
+    "recommendations": {
+        "Very Low": {
+            "title": "Finding Your Spark",
+            "description": "Your happiness score is currently very low. This is a tough place to be, but small steps can spark change.",
+            "tips": [
+                {
+                    "title": "Compassion",
+                    "description": "Be gentle with yourself. You are doing the best you can."
+                },
+                {
+                    "title": "Small Joys",
+                    "description": "Try to notice just one tiny good thing today—a warm drink, a bird song, a soft blanket."
+                },
+                {
+                    "title": "Reach Out",
+                    "description": "Connecting with a support person or professional can be very helpful."
+                }
+            ]
+        },
+        "Low": {
+            "title": "Building Joy",
+            "description": "Happiness feels a bit out of reach right now. Let's focus on building a foundation for joy.",
+            "tips": [
+                {
+                    "title": "Gratitude Journal",
+                    "description": "Write down 3 things you are grateful for, no matter how small."
+                },
+                {
+                    "title": "Music",
+                    "description": "Listen to a playlist of songs that used to make you smile."
+                },
+                {
+                    "title": "Nature Walk",
+                    "description": "Spending time in nature is scientifically proven to lift mood."
+                }
+            ]
+        },
+        "Moderate": {
+            "title": "Balanced Contentment",
+            "description": "You have a moderate level of happiness. You can build on this stable foundation.",
+            "tips": [
+                {
+                    "title": "New Hobby",
+                    "description": "Engage in an activity that challenges you slightly, like learning a new skill."
+                },
+                {
+                    "title": "Socialize",
+                    "description": "Make plans with a friend you haven't seen in a while."
+                },
+                {
+                    "title": "Acts of Kindness",
+                    "description": "Doing something nice for others often boosts our own happiness."
+                }
+            ]
+        },
+        "High": {
+            "title": "High Happiness",
+            "description": "You're feeling good! This is a great time to spread that positivity and strengthen resilience.",
+            "tips": [
+                {
+                    "title": "Savoring",
+                    "description": "Take time to really enjoy moments of joy, making them last longer."
+                },
+                {
+                    "title": "Flow State",
+                    "description": "Engage in activities where you lose track of time."
+                },
+                {
+                    "title": "Future Goals",
+                    "description": "Use this positive energy to plan for future aspirations."
+                }
+            ]
+        },
+        "Very High": {
+            "title": "Thriving!",
+            "description": "You are thriving! Your high levels of happiness are a wonderful asset.",
+            "tips": [
+                {
+                    "title": "Mentoring",
+                    "description": "Consider sharing your positive outlook or skills with others."
+                },
+                {
+                    "title": "Deepen Connections",
+                    "description": "Invest deeply in your closest relationships."
+                },
+                {
+                    "title": "Mindful Appreciation",
+                    "description": "Practice appreciating the very fact of your well-being."
+                }
+            ]
+        }
+    }
+}

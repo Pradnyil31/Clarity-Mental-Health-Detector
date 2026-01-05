@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/onboarding_state.dart';
 import '../../models/assessment.dart';
 import '../../widgets/onboarding_progress_bar.dart';
+import '../../screens/assessment_result_screen.dart';
 
 class AssessmentSuggestionScreen extends ConsumerWidget {
   const AssessmentSuggestionScreen({super.key});
@@ -213,9 +214,23 @@ class AssessmentSuggestionScreen extends ConsumerWidget {
       default: route = '/happiness';
     }
 
-    await Navigator.of(context).pushNamed(route);
+    // Navigate to assessment screen with returnResult = true
+    final result = await Navigator.of(context).pushNamed(
+      route,
+      arguments: {'returnResult': true},
+    );
     
-    // After returning from assessment, automatically go to completion
+    // Check if we got a result
+    if (result is AssessmentResult && context.mounted) {
+       // Show the result screen and wait for it to be popped
+       await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AssessmentResultScreen(result: result),
+        ),
+      );
+    }
+    
+    // After returning from assessment (and result screen), automatically go to completion
     if (context.mounted) {
        Navigator.of(context).pushReplacementNamed('/onboarding-complete');
     }

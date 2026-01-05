@@ -1,0 +1,94 @@
+{
+    "recommendations": {
+        "Minimal": {
+            "title": "Emotional Wellness is Good",
+            "description": "Your results suggest you aren't currently experiencing significant symptoms of depression. Maintaining this balance is key.",
+            "tips": [
+                {
+                    "title": "Daily Check-ins",
+                    "description": "Keep tracking your mood to spot any changes early."
+                },
+                {
+                    "title": "Stay Active",
+                    "description": "Regular physical activity helps maintain positive mental health."
+                },
+                {
+                    "title": "Social Connection",
+                    "description": "Continue nurturing relationships with friends and family."
+                }
+            ]
+        },
+        "Mild": {
+            "title": "Mild Depressive Symptoms",
+            "description": "You're experiencing some mild symptoms. These are common but worth monitoring to prevent them from worsening.",
+            "tips": [
+                {
+                    "title": "Sleep Hygiene",
+                    "description": "Focus on getting regular, quality sleep as it greatly impacts mood."
+                },
+                {
+                    "title": "Structured Routine",
+                    "description": "Creating a daily schedule can provide a sense of control and purpose."
+                },
+                {
+                    "title": "Limit Stress",
+                    "description": "Identify minor stressors and practice relaxation techniques."
+                }
+            ]
+        },
+        "Moderate": {
+            "title": "Moderate Depressive Symptoms",
+            "description": "Your symptoms may be starting to impact your daily life. Proactive steps and support can help manage this.",
+            "tips": [
+                {
+                    "title": "Behavioral Activation",
+                    "description": "Gently push yourself to do small activities you used to enjoy, even if you don't feel like it."
+                },
+                {
+                    "title": "Talk to Someone",
+                    "description": "Sharing your feelings with a trusted friend or family member can lighten the burden."
+                },
+                {
+                    "title": "Mindfulness",
+                    "description": "Practice staying in the present moment to reduce negative thought loops."
+                }
+            ]
+        },
+        "Moderately severe": {
+            "title": "Significant Symptoms",
+            "description": "You are experiencing symptoms that likely make daily activities difficult. Professional support is highly recommended.",
+            "tips": [
+                {
+                    "title": "Seek Professional Help",
+                    "description": "Consider consulting a therapist or doctor to discuss treatment options."
+                },
+                {
+                    "title": "Break Tasks Down",
+                    "description": "Divide big tasks into tiny, manageable steps to avoid overwhelm."
+                },
+                {
+                    "title": "Self-Compassion",
+                    "description": "Be kind to yourself. You are dealing with a difficult challenge, not a personal failure."
+                }
+            ]
+        },
+        "Severe": {
+            "title": "Severe Depressive Symptoms",
+            "description": "These results indicate severe symptoms. It is very important to seek professional help immediately.",
+            "tips": [
+                {
+                    "title": "Contact a Professional",
+                    "description": "Please reach out to a doctor or mental health professional as soon as possible."
+                },
+                {
+                    "title": "Crisis Support",
+                    "description": "If you feel unsafe, please contact emergency services or a crisis hotline immediately."
+                },
+                {
+                    "title": "Simplify Life",
+                    "description": "Focus only on immediate necessities and let go of other obligations for now."
+                }
+            ]
+        }
+    }
+}
