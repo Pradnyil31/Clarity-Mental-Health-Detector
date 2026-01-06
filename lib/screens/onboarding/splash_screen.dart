@@ -52,14 +52,11 @@ class _SplashScreenState extends State<SplashScreen>
     
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              scheme.surface,
-              scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            ],
+            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
           ),
         ),
         child: Center(
@@ -75,39 +72,46 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       // Logo placeholder or asset
                       Container(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
-                          color: scheme.primaryContainer,
+                          color: Colors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            width: 2,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: scheme.primary.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              spreadRadius: 5,
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
-                        child: Icon(
-                          Icons.psychology,
-                          size: 64,
-                          color: scheme.onPrimaryContainer,
+                        child: const Icon(
+                          Icons.psychology_rounded,
+                          size: 80,
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Text(
+                      const Text(
                         'Clarity',
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        style: TextStyle(
+                              fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: scheme.primary,
-                              letterSpacing: 1.2,
-                            ),
+                              color: Colors.white,
+                              letterSpacing: 2,
+                        ),
                       ),
                        const SizedBox(height: 8),
                       Text(
                         'Mental Health Companion',
-                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          letterSpacing: 0.5,
+                         style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 16,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

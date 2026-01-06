@@ -12,197 +12,211 @@ class AssessmentSuggestionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(onboardingProvider);
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Determine the best assessment based on goals
-    final suggestion = _determineAssessment(state.selectedGoals);
-    final assessmentKind = suggestion.key;
-    final reason = suggestion.value;
+    // Determine the best assessments based on goals
+    final suggestions = _determineAssessments(state.selectedGoals);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: OnboardingProgressBar(
-                currentStep: 3, // Final step
-                totalSteps: 3, 
-              ),
-            ),
-            
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Icon(
-                      Icons.assignment_ind_rounded,
-                      size: 64,
-                      color: scheme.primary,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Recommended for You',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Based on your goals, we recommend starting with a quick check-in.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Suggestion Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: scheme.primaryContainer.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: scheme.primary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            assessmentKind.title,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: scheme.primary,
+      body: Container(
+        color: Colors.white,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Curved Header
+                      SizedBox(
+                        height: 320,
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                                 ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            reason,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                  fontStyle: FontStyle.italic,
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(40),
+                                  bottomRight: Radius.circular(40),
                                 ),
-                          ),
-                          const SizedBox(height: 24),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: scheme.surface,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.timer_outlined,
-                                    size: 16, color: scheme.primary),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Takes about 2-3 mins',
-                                  style: TextStyle(
-                                    color: scheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w500,
+                              ),
+                              child: SafeArea(
+                                bottom: false,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    children: [
+                                      OnboardingProgressBar(
+                                        currentStep: 3,
+                                        totalSteps: 3,
+                                      ),
+                                      const Spacer(),
+                                      const Icon(
+                                        Icons.assignment_ind_rounded,
+                                        size: 64,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'Recommended for You',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Based on your goals, we found matches for you.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(alpha: 0.9),
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                    ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Suggestions List
+                      Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Select an Assessment',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                            ),
+                            const SizedBox(height: 16),
+                            if (suggestions.isEmpty)
+                               Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 32),
+                                child: Text(
+                                  "No specific suggestions based on your selection, but you can always explore our library.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                               ),
+                            ...suggestions.map((suggestion) {
+                              final assessmentKind = suggestion.key;
+                              final reason = suggestion.value;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _AssessmentCard(
+                                  assessmentKind: assessmentKind,
+                                  reason: reason,
+                                  onStart: () => _startAssessment(context, assessmentKind),
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Actions
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _startAssessment(context, assessmentKind),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+              // Bottom Skip Action
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: TextButton(
+                  onPressed: () => _skip(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.grey[100],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Skip for now',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                        backgroundColor: scheme.primary,
-                        foregroundColor: scheme.onPrimary,
                       ),
-                      child: const Text('Start Assessment'),
-                    ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.grey[700]),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => _skip(context),
-                    child: Text(
-                      'Skip for now',
-                      style: TextStyle(color: scheme.onSurfaceVariant),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  MapEntry<AssessmentKind, String> _determineAssessment(List<String> goals) {
-    // Priority-based matching
+  List<MapEntry<AssessmentKind, String>> _determineAssessments(List<String> goals) {
+    final Set<MapEntry<AssessmentKind, String>> assessments = {};
+
     if (goals.contains('Depression')) {
-      return const MapEntry(
+      assessments.add(const MapEntry(
         AssessmentKind.phq9,
-        'Since you mentioned feeling down, the PHQ-9 helps understand your mood better.',
-      );
+        'Helps understand your mood and depression symptoms.',
+      ));
     }
     if (goals.contains('Anxiety') || goals.contains('Stress Management')) {
-      return const MapEntry(
+      assessments.add(const MapEntry(
         AssessmentKind.gad7,
-        'To help with anxiety, the GAD-7 assessment is a great starting point.',
-      );
+        'A quick check for anxiety and stress levels.',
+      ));
     }
     if (goals.contains('Sleep Issues')) {
-      return const MapEntry(
+      assessments.add(const MapEntry(
         AssessmentKind.sleep,
-        'Getting better sleep starts with understanding your habits.',
-      );
+        'Understand your sleep habits and quality.',
+      ));
     }
-    if (goals.contains('Productivity') || goals.contains('Self-Esteem')) {
-      return const MapEntry(
-        AssessmentKind.selfEsteem,
-        'Understanding your self-perception can unlock your potential.',
-      );
+    if (goals.contains('Productivity') || goals.contains('General Wellness')) {
+       if (goals.contains('Productivity')) {
+          assessments.add(const MapEntry(
+            AssessmentKind.selfEsteem,
+            'Explore how you perceive your own worth and abilities.',
+          ));
+       }
+       if (goals.contains('General Wellness')) {
+          assessments.add(const MapEntry(
+            AssessmentKind.happiness,
+            'Check in on your overall happiness and satisfaction.',
+          ));
+       }
     }
-    
-    // Default fallback
-    return const MapEntry(
-      AssessmentKind.happiness,
-      'Let\'s start by checking in on your overall wellbeing.',
-    );
+
+    if (assessments.isEmpty) {
+      assessments.add(const MapEntry(
+        AssessmentKind.happiness,
+        'A general wellness check-in to see how you are doing.',
+      ));
+    }
+
+    return assessments.toList();
   }
 
   Future<void> _startAssessment(BuildContext context, AssessmentKind kind) async {
-    // Navigate to assessment screen
-    // We expect the assessment screen to pop when finished or cancelled
-    // If finished (results saved), we should probably move to completion
-    // But AssessmentScreen currently just shows results dialog then might stay there or pop.
-    // We will push it, and rely on the user to "Got it" (pop) back here.
-    // Ideally we want to detect if they completed it.
-    
-    // For now, let's navigate to the specific route based on kind
     String route;
     switch (kind) {
       case AssessmentKind.phq9: route = '/phq9'; break;
@@ -214,25 +228,21 @@ class AssessmentSuggestionScreen extends ConsumerWidget {
       default: route = '/happiness';
     }
 
-    // Navigate to assessment screen with returnResult = true
     final result = await Navigator.of(context).pushNamed(
       route,
       arguments: {'returnResult': true},
     );
-    
-    // Check if we got a result
+
     if (result is AssessmentResult && context.mounted) {
-       // Show the result screen and wait for it to be popped
-       await Navigator.of(context).push(
+      await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => AssessmentResultScreen(result: result),
         ),
       );
     }
-    
-    // After returning from assessment (and result screen), automatically go to completion
+
     if (context.mounted) {
-       Navigator.of(context).pushReplacementNamed('/onboarding-complete');
+      Navigator.of(context).pushReplacementNamed('/onboarding-complete');
     }
   }
 
@@ -240,3 +250,122 @@ class AssessmentSuggestionScreen extends ConsumerWidget {
     Navigator.of(context).pushReplacementNamed('/onboarding-complete');
   }
 }
+
+class _AssessmentCard extends StatelessWidget {
+  final AssessmentKind assessmentKind;
+  final String reason;
+  final VoidCallback onStart;
+
+  const _AssessmentCard({
+    required this.assessmentKind,
+    required this.reason,
+    required this.onStart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        border: Border.all(
+          color: Colors.grey.withValues(alpha: 0.1),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onStart,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF667eea).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.assignment_outlined,
+                        color: Color(0xFF667eea),
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            assessmentKind.title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${assessmentKind.questionCount} Questions  •  2-3 min',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.grey[400],
+                      size: 28,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          reason,
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

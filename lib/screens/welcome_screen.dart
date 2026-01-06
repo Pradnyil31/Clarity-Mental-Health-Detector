@@ -11,111 +11,108 @@ class WelcomeScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF1A1A2E), // Deep dark blue
-                    const Color(0xFF16213E),
-                    const Color(0xFF0F3460),
-                  ]
-                : [
-                    const Color(0xFFE3F2FD), // Very light blue
-                    const Color(0xFFE1F5FE), // Light blue
-                    const Color(0xFFF3E5F5), // Light purple hint
-                  ],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                // Animated Logo Container
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 1000),
-                  curve: Curves.elasticOut,
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: scheme.primary.withValues(alpha: 0.2),
-                              blurRadius: 30,
-                              spreadRadius: 10,
-                            ),
-                          ],
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Curved Header Background
+          Container(
+            height: MediaQuery.of(context).size.height * 0.65,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(60),
+                bottomRight: Radius.circular(60),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   // Animated Logo Container
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 1000),
+                    curve: Curves.elasticOut,
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/logo.png',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.psychology_rounded,
-                          size: 80,
-                          color: scheme.primary,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  // Title and Tagline
+                  FadeTransition(
+                    opacity: const AlwaysStoppedAnimation(1.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Clarity',
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 48),
-                // Title and Tagline
-                FadeTransition(
-                  opacity: const AlwaysStoppedAnimation(1.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Clarity',
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: scheme.onSurface,
-                              letterSpacing: -1,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Your daily mental health companion',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: scheme.onSurfaceVariant,
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            'Your daily mental health companion.\nTrack moods, journal thoughts, and build better habits.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withValues(alpha: 0.9),
+                              height: 1.5,
                               fontWeight: FontWeight.w500,
                             ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Track moods, journal thoughts, and\nbuild better habits together.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            ),
-                      ),
-                    ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const Spacer(),
-                // Action Buttons
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ElevatedButton(
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom Action Sheet
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.35,
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
                       // Navigate to Carousel first, then Signup
                       onPressed: () => Navigator.of(context).pushNamed('/onboarding-carousel'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: scheme.primary,
-                        foregroundColor: scheme.onPrimary,
+                        backgroundColor: const Color(0xFF667eea),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 20),
+                        elevation: 8,
+                        shadowColor: const Color(0xFF667eea).withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        elevation: 4,
                       ),
                       child: const Text(
                         'Get Started',
@@ -125,34 +122,37 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    OutlinedButton(
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pushNamed('/login'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         side: BorderSide(
-                          color: scheme.primary.withValues(alpha: 0.5),
+                          color: const Color(0xFF667eea).withValues(alpha: 0.2),
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'I have an account',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: scheme.primary,
+                          color: Color(0xFF667eea),
                         ),
                       ),
                     ),
-                  ],
-                ),
-                // Debug Reset Button
-                Center(
-                  child: TextButton(
-                    onPressed: () async {
+                  ),
+                  
+                  // Debug Reset Button (Moved to bottom and made subtle)
+                   const SizedBox(height: 16),
+                   GestureDetector(
+                    onTap: () async {
                       // Reset to first launch
                       await OnboardingService.reset();
                       
@@ -169,17 +169,18 @@ class WelcomeScreen extends StatelessWidget {
                         }
                       }
                     }, 
-                    child: const Text(
-                      'Debug: Reset Onboarding',
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: const Text(
+                      'Debug: Reset',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    )),
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

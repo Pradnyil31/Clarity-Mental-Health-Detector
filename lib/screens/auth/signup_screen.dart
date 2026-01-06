@@ -88,85 +88,85 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF1A1A2E),
-                    const Color(0xFF16213E),
-                    const Color(0xFF0F3460),
-                    const Color(0xFF533A7B),
-                  ]
-                : [
-                    const Color(0xFFE3F2FD),
-                    const Color(0xFFBBDEFB),
-                    const Color(0xFF90CAF9),
-                    const Color(0xFF64B5F6),
-                  ],
-          ),
-        ),
+        color: isDark ? const Color(0xFF0F0F0F) : Colors.white,
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo and Title
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: isDark 
-                          ? scheme.surfaceContainerHighest.withValues(alpha: 0.1)
-                          : Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isDark 
-                            ? scheme.outline.withValues(alpha: 0.2)
-                            : Colors.white.withValues(alpha: 0.2),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.psychology_rounded,
-                          size: 60,
-                          color: scheme.primary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Clarity',
-                          style: Theme.of(context).textTheme.headlineLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: scheme.onSurface,
+            top: false, // Allow header to go to top
+            child: Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                  // Curved Header Logo
+                  SizedBox(
+                      height: 300,
+                      child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                              Positioned(
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                      height: 280,
+                                      decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(60),
+                                              bottomRight: Radius.circular(60),
+                                          ),
+                                      ),
+                                      child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                              ClipOval(
+                                                  child: Image.asset(
+                                                      'assets/logo.png',
+                                                      width: 90,
+                                                      height: 90,
+                                                      fit: BoxFit.cover,
+                                                  ),
+                                              ),
+                                              const SizedBox(height: 24),
+                                              const Text(
+                                                  'Clarity',
+                                                  style: TextStyle(
+                                                      fontSize: 40,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
+                                                      letterSpacing: 1.2,
+                                                  ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                  'Mental Health Companion',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.white.withValues(alpha: 0.9),
+                                                      letterSpacing: 0.5,
+                                                      fontWeight: FontWeight.w500,
+                                                  ),
+                                              ),
+                                              const SizedBox(height: 20),
+                                          ],
+                                      ),
+                                  ),
                               ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Mental Health Companion',
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(color: scheme.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
+                          ],
+                      ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24), // Reduced spacing as header is large
 
                   // Signup Form
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
                       color: isDark 
                           ? scheme.surface.withValues(alpha: 0.8)
                           : Colors.white.withValues(alpha: 0.9),
@@ -384,6 +384,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                     ),
+                  ),
                   ),
                 ],
               ),

@@ -35,8 +35,8 @@ class ExperienceCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: scheme.primary.withValues(alpha: 0.2),
-                    blurRadius: 12,
+                    color: scheme.primary.withValues(alpha: 0.15),
+                    blurRadius: 8,
                     spreadRadius: 2,
                   ),
                 ]

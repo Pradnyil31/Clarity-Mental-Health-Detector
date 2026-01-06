@@ -9,6 +9,7 @@ import '../widgets/data_sync_widget.dart';
 import '../state/notification_state.dart';
 import 'notification_settings_screen.dart';
 import '../state/onboarding_state.dart';
+import '../theme/app_spacing.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -29,14 +30,14 @@ class ProfileScreen extends ConsumerWidget {
         slivers: [
           // Modern App Bar with gradient
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 240,
             floating: false,
             pinned: true,
             automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: Container(
-              margin: const EdgeInsets.only(left: 16, top: 8),
+              margin: const EdgeInsets.only(left: AppSpacing.screenPadding, top: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
@@ -68,7 +69,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.screenPadding),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -84,15 +85,15 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
-                            radius: 45,
+                            child: CircleAvatar(
+                            radius: AppDimensions.avatarExtraLarge / 2,
                             backgroundColor: Colors.white.withValues(
                               alpha: 0.2,
                             ),
                             child: userState.profile?.avatarId != null && 
                                    userState.profile!.avatarId!.isNotEmpty
                                 ? Text(
-                                    userState.profile!.avatarId!,
+                                    userState.profile?.avatarId ?? '',
                                     style: const TextStyle(fontSize: 48),
                                   )
                                 : const Icon(
@@ -130,7 +131,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             actions: [
               Container(
-                margin: const EdgeInsets.only(right: 16, top: 8),
+                margin: const EdgeInsets.only(right: AppSpacing.screenPadding, top: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -145,7 +146,7 @@ class ProfileScreen extends ConsumerWidget {
           // Main Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -510,8 +511,8 @@ class _EnhancedStatCard extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: color.withValues(alpha: 0.05),
+            blurRadius: 5,
             offset: const Offset(0, 4),
           ),
         ],
@@ -528,8 +529,8 @@ class _EnhancedStatCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.2),
-                    blurRadius: 4,
+                    color: color.withValues(alpha: 0.1),
+                    blurRadius: 2,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -606,8 +607,8 @@ class _EnhancedSettingsTile extends StatelessWidget {
         border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: scheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: scheme.shadow.withValues(alpha: 0.02),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],

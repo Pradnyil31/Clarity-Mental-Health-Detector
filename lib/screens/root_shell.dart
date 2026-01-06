@@ -87,7 +87,10 @@ class _RootShellState extends State<RootShell> with TickerProviderStateMixin {
     final scheme = Theme.of(context).colorScheme;
 
     // Return a simple scaffold if controllers aren't initialized yet
-    if (_animationController == null || _chatButtonController == null) {
+    final animController = _animationController;
+    final chatController = _chatButtonController;
+    
+    if (animController == null || chatController == null) {
       return Scaffold(
         body: widget.bodyBuilder(context),
         extendBody: true,
@@ -106,8 +109,8 @@ class _RootShellState extends State<RootShell> with TickerProviderStateMixin {
         selectedIndex: _index,
         onTap: _go,
         colorScheme: scheme,
-        animationController: _animationController!,
-        chatButtonController: _chatButtonController!,
+        animationController: animController,
+        chatButtonController: chatController,
       ),
     );
   }
@@ -354,42 +357,50 @@ class _EnhancedBottomBar extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    20,
+                    12,
                     8,
-                    20,
-                    02,
+                    12,
+                    2,
                   ), // Reduced padding
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _EnhancedNavItem(
-                        icon: Icons.home_rounded,
-                        label: 'Home',
-                        selected: selectedIndex == 0,
-                        onTap: () => onTap(0),
-                        colorScheme: colorScheme,
+                      Expanded(
+                        child: _EnhancedNavItem(
+                          icon: Icons.home_rounded,
+                          label: 'Home',
+                          selected: selectedIndex == 0,
+                          onTap: () => onTap(0),
+                          colorScheme: colorScheme,
+                        ),
                       ),
-                      _EnhancedNavItem(
-                        icon: Icons.insights_rounded,
-                        label: 'Insights',
-                        selected: selectedIndex == 1,
-                        onTap: () => onTap(1),
-                        colorScheme: colorScheme,
+                      Expanded(
+                        child: _EnhancedNavItem(
+                          icon: Icons.insights_rounded,
+                          label: 'Insights',
+                          selected: selectedIndex == 1,
+                          onTap: () => onTap(1),
+                          colorScheme: colorScheme,
+                        ),
                       ),
                       const SizedBox(width: 72), // Space for the chat button
-                      _EnhancedNavItem(
-                        icon: Icons.edit_note_rounded,
-                        label: 'Journal',
-                        selected: selectedIndex == 3,
-                        onTap: () => onTap(3),
-                        colorScheme: colorScheme,
+                      Expanded(
+                        child: _EnhancedNavItem(
+                          icon: Icons.edit_note_rounded,
+                          label: 'Journal',
+                          selected: selectedIndex == 3,
+                          onTap: () => onTap(3),
+                          colorScheme: colorScheme,
+                        ),
                       ),
-                      _EnhancedNavItem(
-                        icon: Icons.person_rounded,
-                        label: 'Profile',
-                        selected: selectedIndex == 4,
-                        onTap: () => onTap(4),
-                        colorScheme: colorScheme,
+                      Expanded(
+                        child: _EnhancedNavItem(
+                          icon: Icons.person_rounded,
+                          label: 'Profile',
+                          selected: selectedIndex == 4,
+                          onTap: () => onTap(4),
+                          colorScheme: colorScheme,
+                        ),
                       ),
                     ],
                   ),
@@ -472,6 +483,7 @@ class _EnhancedNavItemState extends State<_EnhancedNavItem>
         : widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) => _controller.reverse(),
       onTapCancel: () => _controller.reverse(),
@@ -484,8 +496,10 @@ class _EnhancedNavItemState extends State<_EnhancedNavItem>
             child: Opacity(
               opacity: _fadeAnimation.value,
               child: Container(
+                color: Colors.transparent, // Ensure full tap area is hit
+                alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 0, 
                   vertical: 4,
                 ),
                 child: Column(

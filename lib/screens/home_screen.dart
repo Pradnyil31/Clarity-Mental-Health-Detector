@@ -11,6 +11,7 @@ import '../widgets/cards/assessment_card.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../utils/responsive_utils.dart';
+import '../widgets/daily_quote_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -46,114 +47,85 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF764ba2).withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: const Color(0xFF764ba2).withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(AppSpacing.screenPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Good Morning,',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withValues(alpha: 0.8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Good Morning,',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                displayName,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                const SizedBox(height: 4),
+                                Text(
+                                  displayName,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: AppSpacing.md),
                           GestureDetector(
                             onTap: () =>
                                 Navigator.of(context).pushNamed('/profile'),
-                            child: CircleAvatar(
-                              radius: 24,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.2,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  width: 2,
+                                ),
                               ),
-                              child: userState.profile?.avatarId != null &&
-                                     userState.profile!.avatarId!.isNotEmpty
-                                  ? Text(
-                                      userState.profile!.avatarId!,
-                                      style: const TextStyle(fontSize: 24),
-                                    )
-                                  : Text(
-                                      displayName.characters.first.toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                              child: CircleAvatar(
+                                radius: AppDimensions.avatarMedium / 2,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.2,
+                                ),
+                                child: userState.profile?.avatarId != null &&
+                                       userState.profile!.avatarId!.isNotEmpty
+                                    ? Text(
+                                        userState.profile?.avatarId ?? '',
+                                        style: const TextStyle(fontSize: 24),
+                                      )
+                                    : Text(
+                                        displayName.characters.first.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 24),
-                      // Streak Card
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.local_fire_department_rounded,
-                              color: Colors.orangeAccent,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              '3 Day Streak',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Container(
-                              width: 1,
-                              height: 20,
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                            const SizedBox(width: 16),
-                            const Text(
-                              'Keep it up!',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Daily Quote Widget
+                      const DailyQuoteWidget(),
                     ],
                   ),
                 ),

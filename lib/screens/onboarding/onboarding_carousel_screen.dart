@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/onboarding_page_indicator.dart';
 
+import '../../theme/app_colors.dart';
+
 class OnboardingCarouselScreen extends StatefulWidget {
   const OnboardingCarouselScreen({super.key});
 
@@ -19,28 +21,28 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
       'description':
           'Discover customized tools and techniques to help you manage specific mental health challenges in your daily life.',
       'icon': Icons.self_improvement,
-      'color': const Color(0xFF64B5F6),
+      'color': AppColors.primary,
     },
     {
       'title': 'Guided Breathing',
       'description':
           'Access quick, effective breathing exercises designed to calm your mind and reduce anxiety in moments of stress.',
       'icon': Icons.air,
-      'color': const Color(0xFF81C784),
+      'color': AppColors.panicRelief,
     },
     {
       'title': 'Track Your Wellness',
       'description':
           'Monitor your mood and progress over time with intuitive tracking tools and visualized insights.',
       'icon': Icons.insights,
-      'color': const Color(0xFFBA68C8),
+      'color': AppColors.moodTracking,
     },
     {
       'title': 'Evidence-Based',
       'description':
           'Utilize professional assessments like PHQ-9 and GAD-7 to better understand your mental health status.',
       'icon': Icons.psychology_alt,
-      'color': const Color(0xFFFFB74D),
+      'color': AppColors.secondary,
     },
   ];
 
@@ -67,12 +69,10 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
-          // Content
           PageView.builder(
             controller: _pageController,
             itemCount: _pages.length,
@@ -81,53 +81,94 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
             },
             itemBuilder: (context, index) {
               final page = _pages[index];
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      (page['color'] as Color).withValues(alpha: 0.1),
-                      scheme.surface,
-                    ],
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(32),
+              final color = page['color'] as Color;
+              
+              return Column(
+                children: [
+                  // Curved Header with Icon
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
-                        color: (page['color'] as Color).withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
+                        color: color,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            color,
+                            color.withValues(alpha: 0.7),
+                          ],
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(48),
+                          bottomRight: Radius.circular(48),
+                        ),
+                        boxShadow: [
+                            BoxShadow(
+                                color: color.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                            ),
+                        ],
                       ),
-                      child: Icon(
-                        page['icon'] as IconData,
-                        size: 80,
-                        color: page['color'] as Color,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SafeArea(
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Icon(
+                                page['icon'] as IconData,
+                                size: 64,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    Text(
-                      page['title'] as String,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface,
+                  ),
+                  
+                  // Text Content
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(32, 40, 32, 0),
+                      child: Column(
+                        children: [
+                          Text(
+                            page['title'] as String,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 26,
+                                ),
                           ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      page['description'] as String,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                            height: 1.5,
+                          const SizedBox(height: 16),
+                          Text(
+                            page['description'] as String,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.5,
+                                  fontSize: 16,
+                                ),
                           ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             },
           ),
@@ -138,11 +179,18 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
             right: 24,
             child: TextButton(
               onPressed: _skip,
-              child: Text(
-                'Skip',
-                style: TextStyle(
-                  color: scheme.primary,
-                  fontWeight: FontWeight.w600,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Skip',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -150,7 +198,7 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
 
           // Bottom Controls
           Positioned(
-            bottom: 48,
+            bottom: 40,
             left: 24,
             right: 24,
             child: Row(
@@ -160,26 +208,43 @@ class _OnboardingCarouselScreenState extends State<OnboardingCarouselScreen> {
                 OnboardingPageIndicator(
                   currentPage: _currentPage,
                   pageCount: _pages.length,
-                  activeColor: scheme.primary,
-                  inactiveColor: scheme.outlineVariant,
+                  activeColor: _pages[_currentPage]['color'] as Color,
+                  inactiveColor: Theme.of(context).colorScheme.outlineVariant,
                 ),
 
                 // Next Button
                 ElevatedButton(
                   onPressed: _nextPage,
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: _pages[_currentPage]['color'] as Color, // Match page color
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
                     ),
+                    elevation: 4,
+                    shadowColor: (_pages[_currentPage]['color'] as Color).withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(
-                    _currentPage == _pages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _currentPage == _pages.length - 1
+                            ? 'Get Started'
+                            : 'Next',
+                        style: const TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (_currentPage != _pages.length - 1) ...[
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                      ]
+                    ],
                   ),
                 ),
               ],

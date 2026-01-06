@@ -32,9 +32,9 @@ class AssessmentCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.cardLarge),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 6),
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),

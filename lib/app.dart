@@ -129,105 +129,10 @@ class ClarityApp extends ConsumerWidget {
       themeMode: themeSettings.materialThemeMode,
       theme: light,
       darkTheme: dark,
-      home: authState.when(
-        data: (user) {
-          if (user == null) {
-            // Check if it's the first launch
-            if (OnboardingService.isFirstLaunchSync) {
-              return const SplashScreen();
-            }
-            return const WelcomeScreen();
-          }
-
-          // User is authenticated, check if profile is loaded
-          if (userState.isLoading) {
-            return const Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Loading your profile...'),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (userState.error != null) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text('Error: ${userState.error}'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref.invalidate(userStateProvider),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          // User authenticated and profile loaded
-          // Check if onboarding is complete
-          final profile = userState.profile;
-          if (profile != null && !profile.hasCompletedOnboarding) {
-            // Onboarding not complete - redirect to personalization
-            return const PersonalizationScreen();
-          }
-
-          return RootShell(
-            currentIndex: 0,
-            bodyBuilder: (context) => const HomeScreen(),
-          );
-        },
-        loading: () =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (error, stack) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text('Error: $error'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(authStateProvider),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      builder: (context, child) {
-        // Apply text scaling from theme settings
-        return MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(themeSettings.textScale)),
-          child: Navigator.canPop(context)
-              ? Theme(
-                  data: Theme.of(context),
-                  child: PopScope(
-                    canPop: true,
-                    onPopInvokedWithResult: (didPop, result) {},
-                    child: child ?? const SizedBox.shrink(),
-                  ),
-                )
-              : child ?? const SizedBox.shrink(),
-        );
-      },
       onGenerateRoute: (settings) {
-
+        if (settings.name == '/') {
+          return _noTransitionRoute(const _MainAuthWrapper());
+        }
         if (settings.name == '/login') {
           return MaterialPageRoute(builder: (_) => const LoginScreen());
         }
@@ -295,8 +200,8 @@ class ClarityApp extends ConsumerWidget {
           );
         }
         if (settings.name == '/journal') {
-          return MaterialPageRoute(
-            builder: (_) => RootShell(
+          return _noTransitionRoute(
+            RootShell(
               currentIndex: 3,
               bodyBuilder: (context) => const JournalScreen(),
             ),
@@ -306,8 +211,8 @@ class ClarityApp extends ConsumerWidget {
           return MaterialPageRoute(builder: (_) => const MoodTrackerScreen());
         }
         if (settings.name == '/insights') {
-          return MaterialPageRoute(
-            builder: (_) => RootShell(
+          return _noTransitionRoute(
+             RootShell(
               currentIndex: 1,
               bodyBuilder: (context) => const InsightsScreen(),
             ),
@@ -317,8 +222,8 @@ class ClarityApp extends ConsumerWidget {
           return MaterialPageRoute(builder: (_) => const CbtScreen());
         }
         if (settings.name == '/profile') {
-          return MaterialPageRoute(
-            builder: (_) => RootShell(
+          return _noTransitionRoute(
+             RootShell(
               currentIndex: 4,
               bodyBuilder: (context) => const ProfileScreen(),
             ),
@@ -375,6 +280,104 @@ class ClarityApp extends ConsumerWidget {
         }
         return null;
       },
+    );
+  }
+
+  PageRouteBuilder _noTransitionRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+    );
+  }
+}
+
+class _MainAuthWrapper extends ConsumerWidget {
+  const _MainAuthWrapper();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+    final userState = ref.watch(userStateProvider);
+
+    return authState.when(
+      data: (user) {
+        if (user == null) {
+          // Check if it's the first launch
+          if (OnboardingService.isFirstLaunchSync) {
+            return const WelcomeScreen();
+          }
+          return const WelcomeScreen();
+        }
+
+        // User is authenticated, check if profile is loaded
+        if (userState.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading your profile...'),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (userState.error != null) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('Error: ${userState.error}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.invalidate(userStateProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // User authenticated and profile loaded
+        // Check if onboarding is complete
+        final profile = userState.profile;
+        if (profile != null && !profile.hasCompletedOnboarding) {
+          // Onboarding not complete - redirect to personalization
+          return const PersonalizationScreen();
+        }
+
+        return RootShell(
+          currentIndex: 0,
+          bodyBuilder: (context) => const HomeScreen(),
+        );
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, stack) => Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(authStateProvider),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

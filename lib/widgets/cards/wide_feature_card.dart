@@ -34,9 +34,9 @@ class WideFeatureCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.cardLarge),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
           ],
         ),

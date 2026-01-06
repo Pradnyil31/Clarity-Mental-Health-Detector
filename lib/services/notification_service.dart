@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as fln;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import '../models/notification_settings.dart';
 
 class NotificationService {
@@ -10,6 +13,9 @@ class NotificationService {
       _instance ??= NotificationService._();
 
   NotificationService._();
+
+  final fln.FlutterLocalNotificationsPlugin _notificationsPlugin =
+      fln.FlutterLocalNotificationsPlugin();
 
   NotificationSettings _settings = const NotificationSettings();
   NotificationSettings get settings => _settings;
@@ -32,6 +38,58 @@ class NotificationService {
 
   Future<void> initialize() async {
     await _loadSettings();
+    tz.initializeTimeZones();
+
+    const fln.AndroidInitializationSettings initializationSettingsAndroid =
+        fln.AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    final fln.DarwinInitializationSettings initializationSettingsDarwin =
+        fln.DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    final fln.InitializationSettings initializationSettings = fln.InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
+
+    await _notificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (details) {
+        // Handle notification tap
+        debugPrint('Notification tapped: ${details.payload}');
+      },
+    );
+
+    if (_settings.enabled) {
+      // Don't await these to avoid blocking startup
+      _requestPermissions();
+      _scheduleAllNotifications();
+    }
+  }
+
+  Future<void> _requestPermissions() async {
+    final androidImplementation =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
+            fln.AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
+      await androidImplementation.requestNotificationsPermission();
+    }
+
+    final iOSImplementation =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
+            fln.IOSFlutterLocalNotificationsPlugin>();
+
+    if (iOSImplementation != null) {
+       await iOSImplementation.requestPermissions(
+         alert: true,
+         badge: true,
+         sound: true,
+       );
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -45,7 +103,6 @@ class NotificationService {
       }
     } catch (e) {
       debugPrint('Error loading notification settings: $e');
-      // Keep default settings if loading fails
     }
     _notifyListeners();
   }
@@ -64,12 +121,19 @@ class NotificationService {
     _settings = newSettings;
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> toggleNotifications(bool enabled) async {
+    if (enabled) {
+      await _requestPermissions();
+    } else {
+      await _notificationsPlugin.cancelAll();
+    }
     _settings = _settings.copyWith(enabled: enabled);
     await _saveSettings();
     _notifyListeners();
+    if (enabled) await _scheduleAllNotifications();
   }
 
   Future<void> toggleNotificationType(
@@ -84,6 +148,7 @@ class NotificationService {
     _settings = _settings.copyWith(typeSettings: newTypeSettings);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> updateNotificationFrequency(
@@ -98,6 +163,7 @@ class NotificationService {
     _settings = _settings.copyWith(frequencies: newFrequencies);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> updateNotificationTime(
@@ -112,6 +178,7 @@ class NotificationService {
     _settings = _settings.copyWith(scheduledTimes: newScheduledTimes);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> updateCustomTimes(
@@ -126,6 +193,7 @@ class NotificationService {
     _settings = _settings.copyWith(customTimes: newCustomTimes);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> toggleSound(bool enabled) async {
@@ -156,18 +224,21 @@ class NotificationService {
     _settings = _settings.copyWith(quietHoursEnabled: enabled);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> updateQuietHours(TimeOfDay start, TimeOfDay end) async {
     _settings = _settings.copyWith(quietHoursStart: start, quietHoursEnd: end);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> toggleWeekendSchedule(bool enabled) async {
     _settings = _settings.copyWith(weekendDifferentSchedule: enabled);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
 
   Future<void> updateWeekendTimes(
@@ -182,7 +253,105 @@ class NotificationService {
     _settings = _settings.copyWith(weekendTimes: newWeekendTimes);
     await _saveSettings();
     _notifyListeners();
+    await _scheduleAllNotifications();
   }
+
+  // --- Scheduling Logic ---
+
+  Future<void> _scheduleAllNotifications() async {
+    await _notificationsPlugin.cancelAll();
+
+    if (!_settings.enabled) return;
+
+    for (final type in NotificationType.values) {
+      if (!isNotificationTypeEnabled(type)) continue;
+
+      final frequency = getNotificationFrequency(type);
+      final time = getNotificationTime(type);
+      final messages = _getMessagesForType(type);
+      final message = messages.isNotEmpty ? messages[0] : 'Check in with Clarity';
+
+      await _scheduleNotification(
+        id: type.index,
+        title: type.displayName,
+        body: message, 
+        time: time,
+        frequency: frequency,
+      );
+    }
+  }
+
+  Future<void> _scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required TimeOfDay time,
+    required NotificationFrequency frequency,
+  }) async {
+    final androidDetails = fln.AndroidNotificationDetails(
+      'clarity_channel_id',
+      'Clarity Notifications',
+      channelDescription: 'Mental health reminders',
+      importance: fln.Importance.max,
+      priority: fln.Priority.high,
+      playSound: _settings.soundEnabled,
+      enableVibration: _settings.vibrationEnabled,
+    );
+
+    final iOSDetails = fln.DarwinNotificationDetails(
+      presentSound: _settings.soundEnabled,
+    );
+
+    final details = fln.NotificationDetails(android: androidDetails, iOS: iOSDetails);
+
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    
+    if (isInQuietHours(scheduledDate)) {
+      return; 
+    }
+
+    if (frequency == NotificationFrequency.daily) {
+       await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        details,
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: fln.DateTimeComponents.time,
+      );
+    } 
+  }
+
+  List<String> _getMessagesForType(NotificationType type) {
+    switch (type) {
+      case NotificationType.moodReminder:
+        return getMoodReminderMessages();
+      case NotificationType.journalReminder:
+        return getJournalReminderMessages();
+      case NotificationType.exerciseReminder:
+        return getExerciseReminderMessages();
+      case NotificationType.assessmentReminder:
+        return getAssessmentReminderMessages();
+      case NotificationType.checkIn:
+        return getCheckInMessages();
+      case NotificationType.motivationalQuote:
+        return getMotivationalMessages();
+    }
+  }
+
 
   // Helper methods for UI
   bool isNotificationTypeEnabled(NotificationType type) {
@@ -213,21 +382,29 @@ class NotificationService {
     return '${hour == 0 ? 12 : hour}:$minute $period';
   }
 
-  bool isInQuietHours(DateTime dateTime) {
+  bool isInQuietHours(dynamic dateTimeOrTimeOfDay) {
     if (!_settings.quietHoursEnabled) return false;
+    
+    TimeOfDay time;
+    if (dateTimeOrTimeOfDay is DateTime) {
+       time = TimeOfDay.fromDateTime(dateTimeOrTimeOfDay);  
+    } else if (dateTimeOrTimeOfDay is TimeOfDay) {
+       time = dateTimeOrTimeOfDay;
+    } else if (dateTimeOrTimeOfDay is tz.TZDateTime) {
+       time = TimeOfDay(hour: dateTimeOrTimeOfDay.hour, minute: dateTimeOrTimeOfDay.minute);
+    } else {
+      return false;
+    }
 
-    final time = TimeOfDay.fromDateTime(dateTime);
     final start = _settings.quietHoursStart;
     final end = _settings.quietHoursEnd;
 
-    // Handle overnight quiet hours (e.g., 22:00 to 07:00)
     if (start.hour > end.hour) {
       return time.hour >= start.hour ||
           time.hour < end.hour ||
           (time.hour == start.hour && time.minute >= start.minute) ||
           (time.hour == end.hour && time.minute < end.minute);
     } else {
-      // Same day quiet hours (e.g., 12:00 to 14:00)
       return (time.hour > start.hour ||
               (time.hour == start.hour && time.minute >= start.minute)) &&
           (time.hour < end.hour ||
@@ -235,7 +412,6 @@ class NotificationService {
     }
   }
 
-  // Sample notification messages
   List<String> getMoodReminderMessages() {
     return [
       "How are you feeling today? 😊",

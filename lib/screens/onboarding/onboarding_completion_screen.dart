@@ -62,82 +62,138 @@ class _OnboardingCompletionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: 80,
-                    color: scheme.onPrimaryContainer,
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Curved Header Background
+          Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(48),
+                bottomRight: Radius.circular(48),
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        width: 2,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      size: 80,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'You\'re All Set!',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                const SizedBox(height: 32),
+                const Text(
+                  'You\'re All Set!',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    'Your personalized wellness dashboard is ready.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.4,
                     ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Your personalized wellness journey begins now. We\'ve customized your dashboard based on your goals.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              
-              // Feature Summary
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Bottom Sheet Content
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+              child: Column(
                 children: [
-                  _FeatureItem(icon: Icons.dashboard, label: 'Dashboard'),
-                  _FeatureItem(icon: Icons.book, label: 'Journal'),
-                  _FeatureItem(icon: Icons.psychology_alt, label: 'Insights'),
+                   // Feature Summary Row
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _FeatureItem(icon: Icons.dashboard_rounded, label: 'Dashboard', color: const Color(0xFF667eea)),
+                      _FeatureItem(icon: Icons.auto_stories_rounded, label: 'Journal', color: const Color(0xFF764ba2)),
+                      _FeatureItem(icon: Icons.psychology_rounded, label: 'Insights', color: const Color(0xFFf093fb)),
+                    ],
+                  ),
+                  
+                  const Spacer(),
+                  
+                  // Go to Home Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _getStarted,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF667eea),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 4,
+                        shadowColor: const Color(0xFF667eea).withValues(alpha: 0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Let\'s Begin',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(Icons.arrow_forward_rounded, size: 20),
+                              ],
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
-              
-              const Spacer(),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _getStarted,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Go to Home'),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -146,22 +202,34 @@ class _OnboardingCompletionScreenState
 class _FeatureItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
 
-  const _FeatureItem({required this.icon, required this.label});
+  const _FeatureItem({
+      required this.icon, 
+      required this.label,
+      required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Icon(icon, color: scheme.primary, size: 32),
+        Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 28),
+        ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: scheme.onSurface,
-                fontWeight: FontWeight.w500,
-              ),
+          style: TextStyle(
+            color: Colors.black.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
       ],
     );

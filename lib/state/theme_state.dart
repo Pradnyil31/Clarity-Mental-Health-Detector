@@ -13,7 +13,7 @@ class ThemeSettings {
   final double textScale;
 
   const ThemeSettings({
-    this.themeMode = AppThemeMode.system,
+    this.themeMode = AppThemeMode.light,
     this.colorScheme = AppColorScheme.blue,
     this.useSystemAccentColor = false,
     this.textScale = 1.0,
@@ -46,7 +46,7 @@ class ThemeSettings {
     return ThemeSettings(
       themeMode: AppThemeMode.values.firstWhere(
         (e) => e.name == json['themeMode'],
-        orElse: () => AppThemeMode.system,
+        orElse: () => AppThemeMode.light,
       ),
       colorScheme: AppColorScheme.values.firstWhere(
         (e) => e.name == json['colorScheme'],
@@ -59,7 +59,7 @@ class ThemeSettings {
 }
 
 class ThemeNotifier extends Notifier<ThemeSettings> {
-  static const String _prefsKey = 'theme_settings';
+  static const String _prefsKey = 'theme_settings_v2';
 
   @override
   ThemeSettings build() {
@@ -79,7 +79,7 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
         final settings = ThemeSettings(
           themeMode: AppThemeMode.values.firstWhere(
             (e) => e.name == json['themeMode'],
-            orElse: () => AppThemeMode.system,
+            orElse: () => AppThemeMode.light,
           ),
           colorScheme: AppColorScheme.values.firstWhere(
             (e) => e.name == json['colorScheme'],
